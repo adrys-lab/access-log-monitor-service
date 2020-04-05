@@ -1,0 +1,186 @@
+{
+
+  "logs": [
+
+    {
+      "host": "127.0.0.1",
+      "identifier": "user1",
+      "user": "mary",
+      "httpMethod": "POST",
+      "resource": "/metrics/x",
+      "returnedStatus": 400,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.2",
+      "identifier": "user2",
+      "user": "marc",
+      "httpMethod": "POST",
+      "resource": "/users/x",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.3",
+      "identifier": "user3",
+      "user": "mary",
+      "httpMethod": "POST",
+      "resource": "/persons",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.4",
+      "identifier": "user4",
+      "user": "adrian",
+      "httpMethod": "GET",
+      "resource": "/employees/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.5",
+      "identifier": "user5",
+      "user": "adrian",
+      "httpMethod": "GET",
+      "resource": "/buys/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.6",
+      "identifier": "user6",
+      "user": "adrian",
+      "httpMethod": "GET",
+      "resource": "/buys/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.7",
+      "identifier": "user7",
+      "user": "adrian",
+      "httpMethod": "GET",
+      "resource": "/employees/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.8",
+      "identifier": "user8",
+      "user": "adrian",
+      "httpMethod": "GET",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.9",
+      "identifier": "user9",
+      "user": "mary",
+      "httpMethod": "GET",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.1",
+      "identifier": "user1",
+      "user": "pol",
+      "httpMethod": "GET",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.1",
+      "identifier": "user1",
+      "user": "pol",
+      "httpMethod": "GET",
+      "resource": "/employees/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.1",
+      "identifier": "user1",
+      "user": "pol",
+      "httpMethod": "GET",
+      "resource": "/employees/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.2",
+      "identifier": "user2",
+      "user": "pol",
+      "httpMethod": "GET",
+      "resource": "/users/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.2",
+      "identifier": "user2",
+      "user": "mary",
+      "httpMethod": "PUT",
+      "resource": "/employees/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.2",
+      "identifier": "user2",
+      "user": "mary",
+      "httpMethod": "PUT",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.2",
+      "identifier": "user2",
+      "user": "mary",
+      "httpMethod": "PUT",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.3",
+      "identifier": "user3",
+      "user": "mary",
+      "httpMethod": "PATCH",
+      "resource": "/users/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.3",
+      "identifier": "user3",
+      "user": "mary",
+      "httpMethod": "PATCH",
+      "resource": "/users/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.3",
+      "identifier": "user3",
+      "user": "mary",
+      "httpMethod": "PATCH",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 404,
+      "contentSize": 20
+    },
+    {
+      "host": "127.0.0.3",
+      "identifier": "user3",
+      "user": "mary",
+      "httpMethod": "PATCH",
+      "resource": "/metrics/user/buys",
+      "returnedStatus": 200,
+      "contentSize": 20
+    }
+  ]
+}

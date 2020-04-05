@@ -1,0 +1,23 @@
+.idea
+target/
+*.iml
+/lib/
+.DS_Store
+.resourceCache
+/kubernetes
+/mariadb
+/log
+/logs
+/json
+.log
+*.log
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+/app/json/

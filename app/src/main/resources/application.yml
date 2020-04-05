@@ -1,0 +1,79 @@
+logging:
+  level:
+    com.adrian: INFO
+    org.hibernate.engine.jdbc.spi: OFF
+    org.hibernate.internal: OFF
+
+spring:
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+  application:
+    name: Http Log Monitor
+  main:
+    web-environment: false
+    web-application-type: NONE
+  datasource:
+    url: "${adapters.mariadb.url}?useLegacyDatetimeCode=false&serverTimezone=Europe/Paris"
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${adapters.mariadb.username}
+    password: ${adapters.mariadb.password}
+    hikari:
+      connection-timeout: 4000
+  flyway:
+    out-of-order: true
+
+camel:
+  component:
+    activemq:
+      transacted: true
+      use-pooled-connection: true
+      broker-u-r-l: ${adapters.activemq.broker-url}
+      username: ${adapters.activemq.user}
+      password: ${adapters.activemq.password}
+
+service:
+  thread-pool-size: 12
+  max-thread-pool-size: 12
+  reader:
+    file-name: /tmp/access.log
+    delay: 1
+  schedulers:
+    alert:
+      enabled: true
+      initial-delay: 12000
+      delay: 10000
+      time-window: 120
+      threshold: 10
+      chunk: 10000
+    stats:
+      enabled: true
+      delay: 10000
+      chunk: 10000
+adapters:
+  camel:
+    shutdown-timeout: 5s
+    delivery:
+      delay: 0.1s
+      max-delay: 1s
+      max-retries: 10
+      backoff-multiplier: 2
+  activemq:
+    user: 'admin'
+    password: 'admin'
+    broker-url: 'tcp://localhost:61616'
+    internal-log-line-queue: 'internal-log-line'
+    internal-log-line-queue-dead: 'internal-log-line.dead'
+    internal-log-stats-queue: 'internal-log--stats'
+    internal-log-stats-queue-dead: 'internal-log--stats.dead'
+    internal-log-alert-queue: 'internal-log--alert'
+    internal-log-alert-queue-dead: 'internal-log--alert.dead'
+  log:
+    enabled: true
+  json:
+    enabled: true
+    file-name: './json/access-log-monitor-service.json'
+  mariadb:
+    url: 'jdbc:mariadb://localhost:3308/httpmonitor'
+    username: 'root'
+    password: 'pass'
