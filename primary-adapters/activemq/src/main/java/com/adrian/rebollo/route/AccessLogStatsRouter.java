@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Route for HttpAccessLogStats which are handled by the accessLogAlertService and externalDispatcherObserver
+ * Route for AccessLogStats which are handled by the accessLogAlertService and externalDispatcherObserver
  */
 @Component
 @RequiredArgsConstructor

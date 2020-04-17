@@ -13,7 +13,7 @@ import com.adrian.rebollo.config.TestConfiguration;
 @SpringBootTest(classes = { AccessLogMonitorApp.class } )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(classes = TestConfiguration.class, initializers = { ContainerEnvironment.Initializer.class })
-public class AccessLogMonitorAppITTest {
+public class AccessLogMonitorAppIT {
 
 	@Test
 	public void contextLoads() {

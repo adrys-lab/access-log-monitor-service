@@ -40,7 +40,6 @@ public class AccessLogLineParserTest {
 	public void insertTimeNotNull() {
 
 		AccessLogLine response = accessLogLineParser.apply("127.0.0.1 loggeduser mary [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
-
 		Assert.assertEquals(0, ChronoUnit.SECONDS.between(response.getInsertTime(), LocalDateTime.now()));
 	}
 

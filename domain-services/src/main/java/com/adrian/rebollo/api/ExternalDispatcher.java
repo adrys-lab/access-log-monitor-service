@@ -9,7 +9,7 @@ public interface ExternalDispatcher {
 
 	/**
 	 * dispatch a LogInfo.
-	 * (currently Extended class by HttpAccessLogAlert and HttpAccessLogStats)
+	 * (currently Extended class by AccessLogAlert and AccessLogStats)
 	 */
 	void dispatch(LogInfo logInfo);
 }

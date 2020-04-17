@@ -3,9 +3,6 @@ logging:
     com.adrian: INFO
 
 spring:
-  jpa:
-    hibernate:
-      use-new-id-generator-mappings: false
   application:
     name: Access Log Monitor
   main:

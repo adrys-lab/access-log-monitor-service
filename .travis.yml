@@ -5,10 +5,10 @@ jdk:
 jobs:
   include:
     - stage: Compile
-      script: mvn clean compile -DskipITTests=true -Dskip.unit.tests=true
+      script: mvn clean compile -Dskip.unit.tests=true
     - stage: Unit Tests
-      script: mvn clean package -DskipITTests=true -Dskip.unit.tests=false
+      script: mvn clean package -Dskip.unit.tests=false
     - stage: Integration Tests
-      script: mvn clean verify -DskipITTests=false -Dskip.unit.tests=true
+      script: mvn clean integration-test
     - stage: Package
-      script: mvn clean package -DskipITTests=true -Dskip.unit.tests=true
+      script: mvn clean package -Dskip.unit.tests=true

@@ -52,7 +52,6 @@
 
 		<!-- build vars -->
 		<skipTests>false</skipTests>
-		<skipITTests>true</skipITTests>
 		<skip.unit.tests>${skipTests}</skip.unit.tests>
 		<spring-boot.run.jvmArguments>-Duser.timezone=Europe/Paris</spring-boot.run.jvmArguments>
 	</properties>
@@ -146,12 +145,6 @@
 			<dependency>
 				<groupId>org.testcontainers</groupId>
 				<artifactId>testcontainers</artifactId>
-				<version>${testcontainers.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>database-commons</artifactId>
 				<version>${testcontainers.version}</version>
 				<scope>test</scope>
 			</dependency>
@@ -260,16 +253,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<configuration>
-					<skipITs>${skipITTests}</skipITs>
-				</configuration>
 				<executions>
 					<execution>
 						<id>integration-test</id>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
 						<configuration>
 							<includes>
 								<include>**/*IT.java</include>

@@ -29,7 +29,7 @@ import com.adrian.rebollo.model.AlertType;
 @ContextConfiguration(classes = TestConfiguration.class, initializers = { ContainerEnvironment.Initializer.class })
 public class EndToEndIT {
 
-	private static final int TEST_TIMEOUT_IN_SECONDS = 120;
+	private static final int TEST_TIMEOUT_IN_SECONDS = 80;
 
 	@Autowired
 	private StateMachine<AlertType, AlertType> alertStateMachine;
@@ -45,13 +45,11 @@ public class EndToEndIT {
 		alertStateMachine.sendEvent(AlertType.NO_ALERT);
 	}
 
-	////////////////// THIS IS AN SLOW TEST - MUST TEST FOR MORE THAN 2 MINUTES DUE TO ALERTS /////////////////////////
+	////////////////// THIS IS AN SLOW TEST - MUST TEST FOR AT LEAST 80 SECONDS DUE TO STATS SCHEDULING /////////////////////////
 	////////////////// NOTICE THIS TEST RUNS WITH AN ALERT WINDOW OF 30 SECONDS AND THRESHOLD OF 5 REQUESTS/SEC TO NOT INCREASE TEST DURATION /////////////////////////
 
 	@Test
 	void endToEndTest() throws Exception {
-
-		Thread.sleep(2000);
 
 		//////////////////GIVEN 3000 LOG LINES TO BE READ (each logline differs on content-length) /////////////////////////
 		final StringBuilder logLines = new StringBuilder();

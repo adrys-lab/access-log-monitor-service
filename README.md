@@ -103,7 +103,7 @@ Create a simple console program that monitors HTTP traffic on your machine:
 * Independently, it comes up the Schedulers logic for Log Stats and Log Alerts.
 * Decided to use Schedulers to trigger the reports for:
     * Stats: 
-        * see [here](./domain-services/src/main/java/com/adrian/rebollo/service/HttpAccessLogStatsServiceImpl.java) to see that scheduler logic.
+        * see [here](./domain-services/src/main/java/com/adrian/rebollo/service/AccessLogStatsServiceImpl.java) to see that scheduler logic.
         * Triggered each 10sec (initial delay of 10sec)
         * it aggregates Log Lines from last 10sec.
             * between scheduler trigger executions, it uses the sequential number from Database to get log ranges:
@@ -113,7 +113,7 @@ Create a simple console program that monitors HTTP traffic on your machine:
             * This scheduler process aggregate all the Log lines, and the final object is a Log Line Stats.
             * This process save the Log Line Stats in Database with a dateTime, and afterwards dispatches (`AMQ`) that Log Line Stats, which will be Routed to LogService, which displays/logs the data for the end-user.
     * Alerts: 
-        * see [here](./domain-services/src/main/java/com/adrian/rebollo/service/HttpAccessLogAlertServiceImpl.java) to see that scheduler logic.
+        * see [here](./domain-services/src/main/java/com/adrian/rebollo/service/AccessLogAlertServiceImpl.java) to see that scheduler logic.
         * Triggered each 10sec (initial delay of 12sec, guarantees delay between stats and alerts reports)
         * it aggregates the Log Stats (persisted by the above scheduler) added during the last 120sec.
             * Between scheduler trigger executions, it uses a `time window` config param (default 120sec):
@@ -265,7 +265,7 @@ totalContent,
 * Code Developed using TDD No adding new logics without being tested.
 * Added Unit Tests for critical logic parts.
 * Added Jacoco Plugin Configuration for COVERAGE and INSTRUCTIONS to keep code-quality and minnimum acceptance criteria.
-* Added Maven plugin configuration to run or not the Integration Tests  `-DskipITTests=false` o `-DskipITTests=true` (default true)
+* Added Maven plugin configuration to run Integration Tests (suffixed wit `*IT.java`) at goal`integration-test`
 * Total tests coverage:
 
 ![Coverage](./pic/coverage.png?raw=false "Coverage")
@@ -293,8 +293,7 @@ totalContent,
 * `mvn test -P[<empty>|<dev> {-Dskip.unit.tests=false}`
 
 ### Integration Tests with Maven
-* `mvn test -P[<empty>|<dev> -DskipITTests=false {-Dskip.unit.tests=false}`
-* `mvn clean verify -DskipITTests=false -Dskip.unit.tests=true|false`
+* `mvn clean integration-test`
 
 ### Run API with Java
 * `java -jar ./app/target/access-log-monitor-service.jar --spring.profiles.active=[<empty>|<dev>`
@@ -315,7 +314,7 @@ totalContent,
 ## Usage and How to Test end-to-end
 * I found a useful tool to generate fake http access logs, called FLOG -> https://github.com/mingrammer/flog
 * tested locally with `flog -f apache_common -o /var/log/access.log -t log -n 4000 -w` generating 4000 log lines.
-    *  step 1 - package the service with `mvn clean package -DskipITTests=true -DskipTests=true`
+    *  step 1 - package the service with `mvn clean package`
     *  step 2 - start docker dependencies with `docker-compose up`
     *  step 3 - execute the service such as with IntelliJ or open a terminal and executing `java -jar ./app/target/access-log-monitor-service.jar`
     *  step 4 - open a terminal and execute `flog -f apache_common -o /var/log/access.log -t log -n 4000 -w` for generate log files. it should respond `/var/log/access.log is created.`

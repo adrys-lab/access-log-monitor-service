@@ -1,12 +1,10 @@
 logging:
   level:
     com.adrian: ERROR
-    org.hibernate.engine.jdbc.spi: OFF
-    org.hibernate.internal: OFF
 
 spring:
   application:
-    name: 'Http Log Monitor'
+    name: 'Access Log Monitor'
   main:
     web-environment: false
     web-application-type: NONE
