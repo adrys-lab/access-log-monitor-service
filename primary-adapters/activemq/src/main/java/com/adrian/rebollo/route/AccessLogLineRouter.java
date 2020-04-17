@@ -33,6 +33,25 @@ public class AccessLogLineRouter extends EnhancedRouteBuilder {
 	public void configure() {
 		errorHandler(deadLetterChannel(queue(endpoint.getInternalLogLineQueueDead()).build()));
 
+		/**
+		 * Use the threadPoolSize and maxThreadPoolSize to allow parallel messages handling.
+		 * This helps to speed-up log messages ingestion.
+		 *
+		 * example log stack (note the thread name):
+		 *
+		 * 2020-04-17 12:09:43,532 INFO  [Camel (camel-1) thread #31 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 * 2020-04-17 12:09:43,541 INFO  [Camel (camel-1) thread #33 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 * 2020-04-17 12:09:43,547 INFO  [Camel (camel-1) thread #22 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 * 2020-04-17 12:09:43,551 INFO  [Camel (camel-1) thread #35 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 * 2020-04-17 12:09:43,558 INFO  [Camel (camel-1) thread #5 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 * 2020-04-17 12:09:43,564 INFO  [Camel (camel-1) thread #24 - JmsConsumer[internal-log-line]] com.adrian.rebollo.service
+		 * .AccessLogStatsServiceImpl: Saving log line accessLogLine=AccessLogLine
+		 */
 		from(queue(endpoint.getInternalLogLineQueue())
 				.setConcurrentConsumers(threadPoolSize)
 				.setMaxConcurrentConsumers(maxThreadPoolSize)

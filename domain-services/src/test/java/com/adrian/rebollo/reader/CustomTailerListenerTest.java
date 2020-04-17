@@ -1,14 +1,14 @@
 package com.adrian.rebollo.reader;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.adrian.rebollo.api.InternalDispatcher;
 import com.adrian.rebollo.model.AccessLogLine;
@@ -22,13 +22,11 @@ public class CustomTailerListenerTest {
 	@Mock
 	private AccessLogLineParser accessLogLineParser;
 	@Mock
-	ThreadPoolTaskExecutor executor;
-	@Mock
 	private InternalDispatcher internalDispatcher;
 
 	@Before
 	public void init() {
-		customTailerListener = new CustomTailerListener(accessLogLineParser, internalDispatcher, executor);
+		customTailerListener = new CustomTailerListener(accessLogLineParser, internalDispatcher);
 	}
 
 	@Test
@@ -36,8 +34,11 @@ public class CustomTailerListenerTest {
 		final String line = "whatever";
 		final AccessLogLine parsed = AccessLogLine.builder().build();
 
+		when(accessLogLineParser.apply(line)).thenReturn(parsed);
+
 		customTailerListener.handle(line);
 
-		verify(executor).execute(any());
+		verify(accessLogLineParser).apply(eq(line));
+		verify(internalDispatcher).dispatch(eq(parsed));
 	}
 }

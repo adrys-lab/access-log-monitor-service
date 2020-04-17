@@ -186,15 +186,12 @@ totalContent,
 ```
 
 ## Design decisions
-* I decided use Parallel Log Parsing and dispatching (through ThreadPoolTaskExecutor) to speed up that logic.
-    * see ThreadPoolTaskExecutors Configs [here](./domain-services/src/main/java/com/adrian/rebollo/DomainServicesConfig.java) for Log Parsing logic.
-        * Parallel Log Line Parsing and Dispatching [here](./domain-services/src/main/java/com/adrian/rebollo/reader/CustomTailerListener.java).
-    * see ThreadPoolTaskExecutors Configs [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/AmqConfig.java) for Log Persisting logic.
-        * Parallel Log Line Routing/Persisting at [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/route/HttpAccessLogLineRoute.java).
-* This involves also to properly configure AMQ to allow parallel consumers processing the messages.
-    * see AMQ concurrent consumption Config [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/AmqConfig.java).
-    * Only needed concurrent consumption for Log Lines. Cause they are dispatched in parallel by `CustomTailerListener`.
-        * see that parallel message consumption [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/route/HttpAccessLogLineRoute.java).
+* I decided use Parallel AMQ message handling/consumption for LogLines.
+    * This speeds-up the parsed log lines consumption.
+    * This involves also to properly configure AMQ to allow parallel consumers processing the messages.
+        * see AMQ concurrent consumption Config [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/AmqConfig.java).
+        * Only needed concurrent consumption for Log Lines. Cause they are dispatched in parallel by `CustomTailerListener`.
+            * see that parallel message consumption [here](./primary-adapters/activemq/src/main/java/com/adrian/rebollo/route/AccessLogLineRouter.java).
     * Log Stats and Log Alerts are not dispatched in multi-thread behaviour.
         * There is no need for it, they are dispatched every 10sec, so there's not concurrent scenario here.
 
@@ -203,8 +200,8 @@ totalContent,
 ![Architecture](./pic/high-level-architecture.jpg?raw=false "Architecture")
 
 * TimeLine order:
-    * The Yellow side is the Asynchronous and Multi-Threading input access log parsing and dispatching to AMQ.
-    * The Green side is the Stats part, with Multi-Threading Routing and computing for each log line.
+    * The Yellow side is the Asynchronous input access log parsing and dispatching to AMQ.
+    * The Green side is the Stats part, with Multi-Threading Routing, which afterwards computes loglines with scheduler each 10sec.
     * The Red side is the Alert side, where Log Stats are handled and computed to create the Alerts.
         * Also both Stats and Alerts are dispatched to AMQ.
     * The Purple side Routes Stats and Alerts to the ExternalDispatchers implementations, which currently are Log and Json. 
