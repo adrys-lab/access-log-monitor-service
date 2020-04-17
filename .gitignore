@@ -9,6 +9,7 @@ target/
 */logs
 */json
 /json
+*/test-access.log
 
 ### STS ###
 .apt_generated
