@@ -87,7 +87,7 @@ public class AccessLogStats extends LogInfo {
 		this.end = end;
 	}
 
-	public static AccessLogStats empty(LocalDateTime start, LocalDateTime end) {
+	public static AccessLogStats with(LocalDateTime start, LocalDateTime end) {
 		return new AccessLogStats().setStart(start).setEnd(end);
 	}
 }

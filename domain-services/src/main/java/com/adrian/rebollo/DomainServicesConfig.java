@@ -20,7 +20,8 @@ public class DomainServicesConfig {
 	 * Provide a Configured Tailer instance.
 	 */
 	@Bean
-	public Tailer configuredTailer(@Value("${service.reader.file-name}") String fileName,
+	public Tailer configuredTailer(
+			@Value("${service.reader.file-name}") String fileName,
 			@Value("${service.reader.delay}") int delay,
 			final CustomTailerListener customTailerListener) {
 		return new Tailer(Paths.get(fileName).toFile(), customTailerListener, delay, true);

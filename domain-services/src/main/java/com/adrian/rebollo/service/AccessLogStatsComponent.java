@@ -39,6 +39,12 @@ public class AccessLogStatsComponent {
 	 */
 	private final Range<Integer> failedRange = Range.between(300, 599);
 
+	/**
+	 * this method aggregates all the given LogLines into an AccessLogStats object.
+	 * Computes all loglines independently, and afterwards aggregates all them together to obtain the top stats.
+	 * @param logs to aggregate
+	 * @return AccessLogStats
+	 */
 	AccessLogStats aggregateLogs(final List<AccessLogLine> logs) {
 
 		final AccessLogStats accessLogStats = new AccessLogStats();
@@ -95,9 +101,12 @@ public class AccessLogStatsComponent {
 		}
 	}
 
-	private void aggregate(AccessLogStats accessLogStats) {
+	private void aggregate(final AccessLogStats accessLogStats) {
 
 		Objects.requireNonNull(accessLogStats, "httpAccessLogStats has ben called to aggregate with null value.");
+
+		//This initializes all the Top statistics with the previously computed stats.
+		//afterwards, it calls `topifyMap` which orders from max to min, and limit the results to 10, for each top stat.
 
 		final Map<String, AtomicLong> hosts = new HashMap<>(accessLogStats.getTopVisitsByHost());
 		accessLogStats.getTopVisitsByHost().clear();
@@ -125,7 +134,7 @@ public class AccessLogStatsComponent {
 	}
 
 	/**
-	 * make a map top by limiting 10 ordered and keeping that order with LinkedHashMap.
+	 * make a map top by limiting to 10 items, ordered and keeping that order with LinkedHashMap.
 	 */
 	private Map<String, AtomicLong> topifyMap(Map<String, AtomicLong> map) {
 		return map.entrySet()

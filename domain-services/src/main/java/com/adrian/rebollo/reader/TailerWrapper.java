@@ -18,7 +18,6 @@ public class TailerWrapper implements DisposableBean {
 
 	/**
 	 * this gets the configuredTailer Bean instance provided by {@link com.adrian.rebollo.DomainServicesConfig}
-	 * @param configuredTailer
 	 */
 	public TailerWrapper(Tailer configuredTailer) {
 		this.tailer = configuredTailer;

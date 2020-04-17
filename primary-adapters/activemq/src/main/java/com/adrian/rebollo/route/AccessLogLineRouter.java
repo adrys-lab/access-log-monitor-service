@@ -55,7 +55,8 @@ public class AccessLogLineRouter extends EnhancedRouteBuilder {
 		from(queue(endpoint.getInternalLogLineQueue())
 				.setConcurrentConsumers(threadPoolSize)
 				.setMaxConcurrentConsumers(maxThreadPoolSize)
-				.setTransacted(true).build())
+				.setTransacted(true)
+				.build())
 				.process((exchange) -> accessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogLine.class)));
 	}
 }

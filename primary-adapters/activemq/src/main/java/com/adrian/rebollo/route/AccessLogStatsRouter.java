@@ -5,8 +5,8 @@ import static com.adrian.rebollo.helper.ActiveMqDestinationBuilder.queue;
 import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.PrimaryEndpoint;
-import com.adrian.rebollo.api.ExternalDispatcherObserver;
 import com.adrian.rebollo.api.AccessLogAlertService;
+import com.adrian.rebollo.api.ExternalDispatcherObserver;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
 import com.adrian.rebollo.model.AccessLogStats;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +29,10 @@ public class AccessLogStatsRouter extends EnhancedRouteBuilder {
 	public void configure() {
 		errorHandler(deadLetterChannel(queue(endpoint.getInternalLogStatsQueueDead()).build()));
 
-		from(queue(endpoint.getInternalLogStatsQueue()).setConcurrentConsumers(1).setTransacted(true).build())
+		from(queue(endpoint.getInternalLogStatsQueue())
+				.setConcurrentConsumers(1)
+				.setTransacted(true)
+				.build())
 				.process((exchange) -> {
 					AccessLogStats payload = objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogStats.class);
 					//route the stats to the alert service

@@ -36,13 +36,15 @@ public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 	@Override
 	public void handle(AccessLogLine accessLogLine) {
 		LOG.info("Saving log line accessLogLine={}.", accessLogLine);
+
+		//keep the access log lines in memory inside the logLines ConcurrentLinkedQueue
 		logLines.offer(accessLogLine);
 	}
 
 	/**
 	 * This scheduler triggers Log Stats aggregations.
-	 * Triggered each (default) 10 seconds.
-	 * This aggregates log lines, compute them, and dispatch through internal Queue Message Broker
+	 * Triggered each Xsec (default 10sec).
+	 * This aggregates log lines, compute them, and dispatch through internal Message Broker
 	 */
 	@ConditionalOnProperty( "service.schedulers.stats.enabled" )
 	@Scheduled(fixedDelayString = "${service.schedulers.stats.delay}", initialDelayString = "${service.schedulers.stats.delay}")
@@ -53,11 +55,10 @@ public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 
 		LOG.info("Triggered scheduler to aggregate logs statistics start={}, end={}.", start, end);
 
-		//return the log lines candidates to be aggregated
 		final List<AccessLogLine> logs = getLogCandidates(end);
 
 		//aggregate all the log line candidates
-		final AccessLogStats accessLogStats = logs.isEmpty() ? AccessLogStats.empty(start, end) : accessLogStatsComponent.aggregateLogs(logs);
+		final AccessLogStats accessLogStats = logs.isEmpty() ? AccessLogStats.with(start, end) : accessLogStatsComponent.aggregateLogs(logs);
 
 		LOG.info("Finished aggregation httpAccessLogStats={}.", accessLogStats);
 
@@ -65,7 +66,11 @@ public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 		internalDispatcher.dispatch(accessLogStats);
 	}
 
+	/*
+	 * return the log lines candidates to be aggregated
+	 */
 	private List<AccessLogLine> getLogCandidates(LocalDateTime end) {
+
 		final List<AccessLogLine> logs = new ArrayList<>();
 
 		AccessLogLine log = logLines.peek();

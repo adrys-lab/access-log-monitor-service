@@ -32,8 +32,20 @@ Create a simple console program that monitors HTTP traffic on your machine:
 ## Restrictions and Decisions
 * Decided to run the application out of Docker environment
     * since it has to deal with system/local files (out of docker container), so it can work then with machine log file.
-* First ideas I had for develop the service was to send the configuration arguments (such as threshold, log file path, stats report (default 10sec), alert time window (default 120sec)...) via JVM arguments, but finally they are in `application.yml` so they are configurable.
-    * if they want to be override they should be replaced (`application.yml`) there and re-run the application. 
+* First idea I had for develop the service was to simply do a command line service/program, receiving arguments (args) (such as threshold, log file path, stats report (default 10sec), alert time window (default 120sec)...) 
+    * via program arguments
+* Finally i decided to rely on Spring to get the benefit of all service injections and env vars configurations in `application.yml`.
+    * which allow to be configurable too as the assessment requests.
+        * if they want to be override they should be replaced (`application.yml`) there and re-run the application.
+    * Also im very experienced and have deep knowledge in spring.
+        * although I could do that same approach without spring, and simply manually inject service dependencies and manually build Threads for asynchronous executions (like tailer).
+    * The spring usage allowed me to introduce Event-Driven-Architecture which:
+        * increases horizontally scalability.
+        * add fault-tolerant architecture -> if a message faults on be delivered, will be sent to its Dead Letter Queue, and can be re-processed once wanted (replaying event) or once a consumer is up again.
+        * Adds asynchronous message consumption and process.
+        * easy to add new consumers without the need to explicitly call them from the message producer.
+            * the consumers subscribed to a queue/topic will handle that message accordingly.
+                * the producer does not know who consumes that message. 
 * Logs and Stats are kept in memory (explained below), so there is no Database in this service.
     * It makes easier to debug if such problem raises.
     * Also make the JVM and service not increase in java heap memory usage.
@@ -113,6 +125,8 @@ Create a simple console program that monitors HTTP traffic on your machine:
     * checks if the number requests per second is higher than threshold.
     * it uses The Machine State Pattern to check in which Alert State the service is currently running:
         * see [here](./domain-services/src/main/java/com/adrian/rebollo/StateMachineConfiguration.java) to see that Alert Machine State Pattern.
+        * this increases machine stat visibility.
+        * The main purpose of that service is to display stats and alerts, so it's a good pattern to apply cause implies the whole service state.
     * Finally once Alert is built, it is dispatched through AMQ to be handled by `externalDispatcherObserver` to be sent to all the `ExternalDispatcher` interface implementations (explained below).
     * Observer Pattern used to that dispatching
         * see [here](./domain-services/src/main/java/com/adrian/rebollo/service/ExternalDispatcherObserverImpl.java) the logic details. 
@@ -222,15 +236,22 @@ totalContent,
 ## Improvements
 * Definetely add a UI to show on a better user-friendly way the results
 * Scale up the application in a multi-jvm environment (Dockerized and Kubernetes Infrastructure)
-    * with several service instances nodes, we could apply a distributed lock (DynamoDB Lock) to avoid read same loglines/stats from several nodes.
 * Accept more Log Formats cause currently only Apache Common is allowed.
 * Thinking on how to properly inform the end-user about the traffic, an Slack webhook could be configured too to publish ALERT (HIGH TRAFFIC, RECOVERED) events (others like, create a JIRA ticket, send email....etc)
 * Provide proper DASHBOARDS visualizations with Timeline Traffic and Alerts stats.
-* Allow the end-user to configure and tag the logs monitoring alerts and stats to bring a more grained and adaptable details.
+* Allow the end-user to configure and tag the logs monitoring alerts and stats to bring a more grained and adaptable detail.
 * Allow the end-user to group the data.
 * Add machine learning for alert automatic detection and anomalies detection. 
-* Provide external Webhooks where to trigger alerts and stats to integrate with external 3rd party's API's.  
 * Configure Sentry for Error Reporting
+* Add Server/Machine stats while there are alerts (how acts JVM when HIGH TRAFFIC ? CPU usage, Memory Usage, response-times at that time...etc)
+* In parallel, create another service/API which is exposed to the HTTP/web.
+    * Then from this `Access Log Monitor Service`, send all the stats and alerts to that HTTP exposed service.
+    * with that centralized API, expose all the stats and alerts to the end user through UI.
+        * This would increase scalability.
+        * At the end, this `Access Log Monitor Service` would be simply acting as an Agent which captures and analyzes local stats.
+        * Therefore send thse stats to that centralized Service/API which would act as SaaS for the end-user.
+            * we would have a centralized place where all the machines/nodes stats are aggregated together.
+    * Allow the user to customize the view, or even what to track, by adding customized APM properties.
 
 ## Unit Testing
 * Code Developed using TDD No adding new logics without being tested.
@@ -414,3 +435,4 @@ STATS OBJECT:
 * Example json output from a load test ingesting 4000 access log lines.
 
 [here](./example-access-log-monitor-service.json)
+

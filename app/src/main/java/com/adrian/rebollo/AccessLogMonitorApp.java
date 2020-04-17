@@ -25,6 +25,9 @@ public class AccessLogMonitorApp {
 		SpringApplication.run(AccessLogMonitorApp.class, args);
 	}
 
+	/**
+	 * configure the jvm timezone programmatically to Europe/Paris.
+	 */
 	@PostConstruct
 	public void init(){
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"));

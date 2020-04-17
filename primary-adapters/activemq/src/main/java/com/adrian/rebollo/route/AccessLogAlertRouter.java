@@ -27,7 +27,10 @@ public class AccessLogAlertRouter extends EnhancedRouteBuilder {
 	public void configure() {
 		errorHandler(deadLetterChannel(queue(endpoint.getInternalLogAlertQueueDead()).build()));
 
-		from(queue(endpoint.getInternalLogAlertQueue()).setConcurrentConsumers(1).setTransacted(true).build())
+		from(queue(endpoint.getInternalLogAlertQueue())
+				.setConcurrentConsumers(1)
+				.setTransacted(true)
+				.build())
 				.process((exchange) -> {
 					AccessLogAlert payload = objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogAlert.class);
 					externalDispatcherObserver.notify(payload);
