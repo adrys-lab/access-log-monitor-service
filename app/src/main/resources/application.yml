@@ -20,7 +20,7 @@ camel:
 
 service:
   thread-pool-size: 12
-  max-thread-pool-size: 12
+  max-thread-pool-size: 50
   reader:
     file-name: /tmp/access.log
     delay: 1
@@ -36,7 +36,7 @@ adapters:
     shutdown-timeout: 5s
     delivery:
       delay: 0.1s
-      max-delay: 1s
+      max-delay: 0.1s
       max-retries: 10
       backoff-multiplier: 2
   activemq:

@@ -47,6 +47,10 @@ public class AccessLogAlertServiceImpl implements AccessLogAlertService {
 	public void init() {
 		//Starts the Alert State Machine
 		alertStateMachine.start();
+
+		//Create a bounded queue with fixed size = timewindow divided by the delay stats.
+		//This allows to keep in memory the 12 last stats with which the timewindow must evaluate the stats.
+		//In addition, this EvictingQueue, will replace the oldest queue element by the newer one when the queue reach full (12 elements)
 		statsQueue = EvictingQueue.create(alertTimeWindow / (delayStats / 1000));
 	}
 
@@ -73,7 +77,7 @@ public class AccessLogAlertServiceImpl implements AccessLogAlertService {
 				.mapToLong(Long::longValue)
 				.sum();
 
-		//This gives the total requests per second (average) that will alow to contrast versus the threshold.
+		//This gives the total requests per second (average) that will allow to check against the threshold.
 		double requestsSecond = Math.round((float) totalRequests / alertTimeWindow* 100.0) / 100.0;
 
 		LOG.info("Computed Alert totalRequests={}, requestsSecond={}.", totalRequests, requestsSecond);
@@ -103,7 +107,7 @@ public class AccessLogAlertServiceImpl implements AccessLogAlertService {
 		//here we update the alert state machine with the given alert type.
 		alertStateMachine.sendEvent(accessLogAlert.getType());
 
-		//alaways send the alert to be dispatched. it has to reach the LogService anyways.
+		//always send the alert to be dispatched (even if there is NO ALERT).
 		internalDispatcher.dispatch(accessLogAlert);
 	}
 }

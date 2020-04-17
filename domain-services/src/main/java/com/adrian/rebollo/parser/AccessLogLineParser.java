@@ -34,7 +34,7 @@ public class AccessLogLineParser implements Function<String, AccessLogLine> {
 
 		try {
 			if(lineMatcher.find()) {
-				LOG.debug("Proceeding to parse line={}", line);
+				LOG.info("Proceeding to parse line={}", line);
 				return AccessLogLine.builder()
 						.host(safeParseString(lineMatcher.group(1)))
 						.identifier(StringUtils.defaultIfBlank(safeParseString(lineMatcher.group(2)), "NO_IDENTIFIER"))

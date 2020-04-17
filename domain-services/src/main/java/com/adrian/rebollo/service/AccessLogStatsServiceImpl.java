@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 
-	//Concurrent thread-safe queue with fast insertion peek and deletion (complexity O(1) for all 3 operations.)
+	//Concurrent thread-safe queue with fastest peek, offer and poll operations (complexity O(1) for all 3 operations.)
 	private final Queue<AccessLogLine> logLines = new ConcurrentLinkedQueue<>();
 	private final InternalDispatcher internalDispatcher;
 	private final AccessLogStatsComponent accessLogStatsComponent;
@@ -35,6 +35,7 @@ public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 
 	@Override
 	public void handle(AccessLogLine accessLogLine) {
+		LOG.info("Saving log line accessLogLine={}.", accessLogLine);
 		logLines.offer(accessLogLine);
 	}
 
@@ -69,6 +70,9 @@ public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 
 		AccessLogLine log = logLines.peek();
 
+		//first we peek a queue element to be checked, if satisfies the condition, we poll it.
+		//this avoids to poll any log line from the queue which maybe does not satisfy the time condition.
+		//LogLine candidates must satisfy that they have been inserted/parsed during the last 10 seconds.
 		while (log != null && log.getInsertTime().isBefore(end)) {
 			log = logLines.poll();
 			logs.add(log);
