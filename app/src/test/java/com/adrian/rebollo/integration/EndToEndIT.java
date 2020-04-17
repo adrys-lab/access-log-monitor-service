@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ import com.adrian.rebollo.model.AlertType;
 @ContextConfiguration(classes = TestConfiguration.class, initializers = { ContainerEnvironment.Initializer.class })
 public class EndToEndIT {
 
-	private static final int TEST_TIMEOUT_IN_SECONDS = 80;
+	private static final int TEST_TIMEOUT_IN_SECONDS = 100;
 
 	@Autowired
 	private StateMachine<AlertType, AlertType> alertStateMachine;
@@ -51,26 +52,24 @@ public class EndToEndIT {
 	@Test
 	void endToEndTest() throws Exception {
 
-		//////////////////GIVEN 3000 LOG LINES TO BE READ (each logline differs on content-length) /////////////////////////
-		final StringBuilder logLines = new StringBuilder();
-		String logLine = "127.123.22.54 user adrian [09/May/2018:16:00:42 +0000] \"POST /buy/user HTTP/1.0\" 503 %s \n";
-		int count = 0;
+		Thread.sleep(1000);
 
-		for(; count < 3000; count++) {
-			logLines.append(String.format(logLine, ++count));
-		}
+		//////////////////GIVEN 3000 LOG LINES TO BE READ  /////////////////////////
+		final StringBuilder logLines = new StringBuilder();
+		IntStream.range(0, 3000)
+				.forEach((i) -> logLines.append( "127.123.22.54 user adrian [09/May/2018:16:00:42 +0000] \"POST /buy/user HTTP/1.0\" 503 1500 \n"));
 		writeNewLine(logLines.toString());
 
-		//////////////////WHEN PARSED AND READ BY THE CORE APPLICATION READ /////////////////////////
+		//////////////////WHEN PARSED AND STORED IN MEMORY /////////////////////////
 		//////////////////THEN ALERT STATE MACHINE SHOULD BE HIGH TRAFFIC DUE TO 3000 ACCESSES IN LESS THAN 30 SECONDS  /////////////////////////
 		await().atMost(Duration.ofSeconds(TEST_TIMEOUT_IN_SECONDS))
 				.until(() -> alertStateMachine.getState().getId() == AlertType.HIGH_TRAFFIC);
 
-		//////////////////THEN ALERT STATE MACHINE SHOULD BE RECOVER DUE TO REDUCED ACCESES DURING LAST 30 SECONDS  /////////////////////////
+		//////////////////THEN ALERT STATE MACHINE SHOULD BE RECOVER DUE TO REDUCED ACCESSES DURING LAST 30 SECONDS  /////////////////////////
 		await().atMost(Duration.ofSeconds(TEST_TIMEOUT_IN_SECONDS))
 				.until(() -> alertStateMachine.getState().getId() == AlertType.RECOVER);
 
-		//////////////////THEN ALERT STATE MACHINE SHOULD BE NO_ALERT DUE TO REDUCED ACCESES DURING LAST 30 SECONDS  /////////////////////////
+		//////////////////THEN ALERT STATE MACHINE SHOULD BE NO_ALERT DUE TO REDUCED ACCESSES DURING LAST 30 SECONDS  /////////////////////////
 		await().atMost(Duration.ofSeconds(TEST_TIMEOUT_IN_SECONDS))
 				.until(() -> alertStateMachine.getState().getId() == AlertType.NO_ALERT);
 	}
