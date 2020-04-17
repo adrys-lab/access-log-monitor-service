@@ -219,7 +219,7 @@ totalContent,
 
 ## High Level Architecture
 
-![Architecture](./pic/high-level-architecture.png?raw=false "Architecture")
+![Architecture](./pic/high-level-architecture.jpg?raw=false "Architecture")
 
 * TimeLine order:
 
