@@ -303,87 +303,104 @@ totalContent,
 * All TOP stats are ordered from Max to Min.
 
 ```
-requests=517,
-validRequests=122,
-invalidRequests=369,
-totalContent=7245704,
-"topvisitsByMethod="{
-   HEAD=97,
-   DELETE=85,
-   POST=91,
-   GET=77,
-   PATCH=90,
-   PUT=77
-},
-"topValidVisitedRequestsSections="{
-   /grow=3,
-   /web-enabled=2,
-   /portals=2,
-   /incubate=2,
-   /maximize=2,
-   /repurpose=3,
-   /bricks-and-clicks=2,
-   /frictionless=2,
-   /distributed=3,
-   /one-to-one=3
-},
-"topInvalidVisitedRequestsSections="{
-   /e-services=7,
-   /holistic=9,
-   /productize=5,
-   /e-markets=5,
-   /frictionless=5,
-   /exploit=5,
-   /wireless=5,
-   /out-of-the-box=7,
-   /synergistic=8,
-   /vertical=6
-},
-"topVisitsByHost="{
-   101.126.111.41=1,
-   47.136.3.8=1,
-   38.224.176.249=1,
-   97.50.210.136=1,
-   93.64.231.97=1,
-   58.119.10.17=1,
-   208.28.247.50=1,
-   136.225.54.116=1,
-   123.36.125.29=1,
-   122.216.227.158=1
-},
-"topVisitsByUser="{
-   NO_USER=262,
-   steuber3327=1,
-   adams2248=1,
-   kerluke4166=1,
-   bernhard2143=1,
-   kiehn5401=1,
-   mills1457=1,
-   bartell3571=1,
-   lemke7636=1,
-   hills1671=1
-},
-"topVisitsSection="{
-   /holistic=10,
-   /synergistic=9,
-   /e-services=8,
-   /out-of-the-box=8,
-   /frictionless=7,
-   /world-class=7,
-   /one-to-one=7,
-   /distributed=6,
-   /wireless=6,
-   /enable=6
-})
+ALERT OBJECT:
+    {
+    "requests" : 1493,
+    "requestsSecond" : 12.44,
+    "alertTime" : "17-04-2020 12:33:45",
+    "start" : "17-04-2020 12:31:45",
+    "end" : "17-04-2020 12:33:45",
+    "type" : "HIGH_TRAFFIC"
+    },
+
+STATS OBJECT: 
+    {
+    "start" : "17-04-2020 12:33:36",
+    "end" : "17-04-2020 12:33:45",
+    "requests" : 1493,
+    "validRequests" : 420,
+    "invalidRequests" : 1073,
+    "totalContent" : 22792586,
+    "topVisitsByMethod" : {
+      "PUT" : 265,
+      "DELETE" : 254,
+      "PATCH" : 248,
+      "POST" : 245,
+      "HEAD" : 243,
+      "GET" : 238
+    },
+    "topValidVisitedRequestsSections" : {
+      "/open-source" : 8,
+      "/exploit" : 7,
+      "/visualize" : 7,
+      "/seize" : 7,
+      "/synergize" : 7,
+      "/deploy" : 6,
+      "/e-commerce" : 6,
+      "/global" : 6,
+      "/web+services" : 6,
+      "/extensible" : 5
+    },
+    "topInvalidVisitedRequestsSections" : {
+      "/customized" : 12,
+      "/ubiquitous" : 12,
+      "/user-centric" : 12,
+      "/front-end" : 12,
+      "/mission-critical" : 11,
+      "/portals" : 11,
+      "/enable" : 11,
+      "/iterate" : 10,
+      "/unleash" : 10,
+      "/e-business" : 10
+    },
+    "topVisitsByHost" : {
+      "13.98.90.80" : 1,
+      "174.237.26.157" : 1,
+      "247.27.251.176" : 1,
+      "148.167.61.37" : 1,
+      "162.185.153.78" : 1,
+      "179.144.63.106" : 1,
+      "16.210.70.203" : 1,
+      "58.13.220.82" : 1,
+      "186.206.193.40" : 1,
+      "25.185.58.253" : 1
+    },
+    "topVisitsByUser" : {
+      "NO_USER" : 801,
+      "bauch5658" : 1,
+      "weissnat8445" : 1,
+      "walsh7321" : 1,
+      "stamm4630" : 1,
+      "heaney5382" : 1,
+      "conroy1768" : 1,
+      "roberts1445" : 1,
+      "simonis3433" : 1,
+      "jast1641" : 1
+    },
+    "topVisitsSection" : {
+      "/synergize" : 17,
+      "/visualize" : 15,
+      "/e-commerce" : 15,
+      "/front-end" : 15,
+      "/customized" : 14,
+      "/mission-critical" : 14,
+      "/facilitate" : 14,
+      "/viral" : 14,
+      "/portals" : 14,
+      "/transition" : 14
+    }
 ```
 
 ## Alert appearance:
 ```
-2020-04-03 09:12:45,175 INFO ALERT - HIGH TRAFFIC generated an alert - hits = {1035}, hits/s = {35.0}, triggered at {2020-04-03T09:12:45.169960} , with stats from {2020-04-03T09:12:15.160481}, to {2020-04-03T09:12:45.160481}
-2020-04-03 09:12:35,153 INFO ALERT - HIGH TRAFFIC generated an alert - hits = {847}, hits/s = {28.0}, triggered at {2020-04-03T09:12:35.146784} , with stats from {2020-04-03T09:12:05.134119}, to {2020-04-03T09:12:35.134119}
-2020-04-03 09:12:55,192 INFO ALERT - HIGH TRAFFIC generated an alert - hits = {763}, hits/s = {25.0}, triggered at {2020-04-03T09:12:55.189020} , with stats from {2020-04-03T09:12:25.181767}, to {2020-04-03T09:12:55.181767}
-2020-04-03 09:13:15,217 INFO ALERT - RECOVERED from a previous HIGH TRAFFIC alert - hits = {0}, hits/s = {0.0}, triggered at {2020-04-03T09:13:15.212400}, with stats from {2020-04-03T09:12:45.206831}, to {2020-04-03T09:13:15.206831}
-2020-04-03 09:13:25,230 INFO ALERT - NO ALERT status - hits = {0}, hits/s = {0.0}, triggered at {2020-04-03T09:13:25.226232}, with stats from {2020-04-03T09:12:55.219338}, to {2020-04-03T09:13:25.219338}
+2020-04-17T12:33:55.206+0200 INFO ALERT - HIGH TRAFFIC generated an alert - hits = {3587}, hits/s = {29.89}, triggered at {2020-04-17T12:33:55} , with stats from {2020-04-17T12:31:55}, to {2020-04-17T12:33:55}
+2020-04-17T12:33:55.208+0200 INFO AccessLogStats(start=2020-04-17T12:33:45, end=2020-04-17T12:33:55, requests=2094, validRequests=599, invalidRequests=1495, totalContent=31832558, topVisitsByMethod={POST=372, PUT=365, PATCH=348, DELETE=339, HEAD=337, GET=333}, topValidVisitedRequestsSections={/end-to-end=10, /b2b=9, /ubiquitous=8, /engage=8, /productize=7, /bandwidth=7, /recontextualize=7, /communities=7, /mindshare=7, /visualize=6}, topInvalidVisitedRequestsSections={/e-business=22, /drive=19, /architect=17, /target=16, /ubiquitous=16, /markets=16, /bleeding-edge=15, /models=15, /real-time=14, /mesh=14}, topVisitsByHost={223.122.25.94=1, 113.82.252.11=1, 170.14.58.225=1, 238.157.33.65=1, 216.23.234.178=1, 40.246.223.213=1, 47.243.165.49=1, 19.221.97.196=1, 21.40.99.90=1, 161.71.111.36=1}, topVisitsByUser={NO_USER=1071, lebsack8105=1, ledner3864=1, walsh7325=1, schuster6410=1, stroman2473=1, goyette5774=1, bradtke6724=1, wolf5273=1, mann4810=1}, topVisitsSection={/e-business=25, /drive=24, /ubiquitous=24, /models=21, /target=19, /one-to-one=19, /architect=19, /engage=19, /markets=19, /real-time=18})
+2020-04-17T12:34:05.212+0200 INFO ALERT - HIGH TRAFFIC generated an alert - hits = {4000}, hits/s = {33.33}, triggered at {2020-04-17T12:34:05} , with stats from {2020-04-17T12:32:05}, to {2020-04-17T12:34:05}
+2020-04-17T12:34:05.214+0200 INFO AccessLogStats(start=2020-04-17T12:33:55, end=2020-04-17T12:33:57, requests=413, validRequests=113, invalidRequests=300, totalContent=6104466, topVisitsByMethod={PATCH=76, HEAD=72, PUT=70, DELETE=69, GET=64, POST=62}, topValidVisitedRequestsSections={/communities=4, /niches=3, /expedite=3, /networks=3, /front-end=3, /strategic=3, /efficient=2, /frictionless=2, /24%2f7=2, /turn-key=2}, topInvalidVisitedRequestsSections={/e-business=7, /productize=6, /applications=6, /dot-com=6, /turn-key=5, /brand=5, /back-end=5, /scalable=5, /holistic=4, /target=4}, topVisitsByHost={117.255.252.138=1, 138.178.61.132=1, 133.58.119.146=1, 95.14.157.79=1, 212.229.106.79=1, 223.237.214.195=1, 210.72.144.191=1, 199.24.131.11=1, 14.64.231.61=1, 103.38.2.237=1}, topVisitsByUser={NO_USER=204, quitzon3053=1, bruen2514=1, franecki2760=1, ledner4710=1, wyman7412=1, ullrich4105=1, bashirian5356=1, schuster4234=1, kuhlman8002=1}, topVisitsSection={/e-business=8, /turn-key=7, /communities=7, /niches=6, /productize=6, /applications=6, /dot-com=6, /back-end=6, /networks=6, /front-end=6})
+2020-04-17T12:35:55.309+0200 INFO ALERT - RECOVERED from a previous HIGH TRAFFIC alert - hits = {413}, hits/s = {3.44}, triggered at {2020-04-17T12:35:55}, with stats from {2020-04-17T12:33:55}, to {2020-04-17T12:35:55}
+2020-04-17T12:35:55.310+0200 INFO AccessLogStats(start=2020-04-17T12:35:45, end=2020-04-17T12:35:55, requests=0, validRequests=0, invalidRequests=0, totalContent=0, topVisitsByMethod={}, topValidVisitedRequestsSections={}, topInvalidVisitedRequestsSections={}, topVisitsByHost={}, topVisitsByUser={}, topVisitsSection={})
+2020-04-17T12:36:05.317+0200 INFO ALERT - NO ALERT status - hits = {0}, hits/s = {0.0}, triggered at {2020-04-17T12:36:05}, with stats from {2020-04-17T12:34:05}, to {2020-04-17T12:36:05}
+2020-04-17T12:36:05.320+0200 INFO AccessLogStats(start=2020-04-17T12:35:55, end=2020-04-17T12:36:05, requests=0, validRequests=0, invalidRequests=0, totalContent=0, topVisitsByMethod={}, topValidVisitedRequestsSections={}, topInvalidVisitedRequestsSections={}, topVisitsByHost={}, topVisitsByUser={}, topVisitsSection={})
 ```
 
 ## Output access-log-monitor-service.log appearance:
