@@ -231,10 +231,6 @@ totalContent,
         * Also both Stats and Alerts are dispatched to AMQ.
     * The Purple side Routes Stats and Alerts to the ExternalDispatchers implementations, which currently are Log and Json. 
 
-## Low Level Architecture
-
-![Schedulers](./pic/schedulers-timeline.png?raw=false "Schedulers")
-
 ## Other decisions taken
 * Decided to not offer UI for alerts and stats cause i dedicated much time in the current solution (also thought the UI side was not the main purpose of the assesment.)
     * Therefore i decided to offer the output stats through a Log and Json files (I know they are not much user-friendly).    
