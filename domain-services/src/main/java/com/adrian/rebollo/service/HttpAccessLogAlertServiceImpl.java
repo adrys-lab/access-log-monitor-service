@@ -2,24 +2,24 @@ package com.adrian.rebollo.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 
+import com.adrian.rebollo.api.HttpAccessLogAlertService;
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.dao.HttpAccessLogStatsDao;
 import com.adrian.rebollo.model.AlertType;
 import com.adrian.rebollo.model.HttpAccessLogAlert;
 import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.google.common.collect.EvictingQueue;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +27,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HttpAccessLogAlertServiceImpl {
+public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService {
 
-	private final HttpAccessLogStatsDao httpAccessLogStatsDao;
 	private final InternalDispatcher internalDispatcher;
 
+	private Queue<HttpAccessLogStats> statsQueue;
+
 	@Value("${service.schedulers.alert.time-window}")
-	private int alertTimeWindow;
+	private final int alertTimeWindow;
+	@Value("${service.schedulers.stats.delay}")
+	private final int delayStats;
 	@Value("${service.schedulers.alert.threshold}")
-	private int threshold;
-	@Value("${service.schedulers.alert.chunk}")
-	private int chunk;
+	private final int threshold;
 
 	@Autowired
 	private final StateMachine<AlertType, AlertType> alertStateMachine;
@@ -46,64 +47,43 @@ public class HttpAccessLogAlertServiceImpl {
 	public void init() {
 		//Starts the Alert State Machine
 		alertStateMachine.start();
+		statsQueue = EvictingQueue.create(alertTimeWindow / (delayStats / 1000));
 	}
 
-	/**
-	 * This scheduler triggers Log Alerts creation.
-	 * Triggered each (default) 10 seconds.
-	 * the window alert is default 120sec, and is the one that determines which dates to query and the average threshold evaluation.
-	 * It has an initial delay higher (1sec higher) than {@link com.adrian.rebollo.service.HttpAccessLogStatsServiceImpl} to not make them clash.
-	 * So we ensure each triggers differs in 1sec.
-	 * The method gets the last 120sec added stats, compute them, and dispatch through internal Queue Message Broker.
-	 */
-	@ConditionalOnProperty( "service.schedulers.alert.enabled" )
-	@Scheduled(fixedDelayString = "${service.schedulers.alert.delay}", initialDelayString = "${service.schedulers.alert.initial-delay}")
-	public void alert() {
+	public void handle(HttpAccessLogStats httpAccessLogStats) {
+		statsQueue.offer(httpAccessLogStats);
+		compute();
+	}
+
+	//compute the stats to build the alert
+	private void compute() {
 
 		final LocalDateTime end = LocalDateTime.now();
 		final LocalDateTime start = end.minus(alertTimeWindow, ChronoUnit.SECONDS);
 
-		/*
-		 * Notice this triggers the last 10sec added Log Lines.
-		 * ie:
-		 * 1st - from x10 to x130
-		 * 2nd - from x20 to x140
-		 * 3rd - from x30 to x150
-		 * ...
-		 */
 		LOG.info("Triggered alert compute logs statistics for a timewindow={} SECONDS, from={}, to={}.", alertTimeWindow, start, end);
 
-		final Optional<List<HttpAccessLogStats>> optionalStats = httpAccessLogStatsDao.findByDateBetween(start, end, chunk);
+		final List<HttpAccessLogStats> stats = new ArrayList<>(statsQueue);
 
-		if(optionalStats.isPresent() && !optionalStats.get().isEmpty()) {
-			final List<HttpAccessLogStats> stats = optionalStats.get();
+		LOG.info("Proceeding to check Alerts from {} stats data.", stats.size());
 
-			LOG.info("Proceeding to check Alerts from {} stats data.", stats.size());
+		final long totalRequests = stats.stream()
+				.map(HttpAccessLogStats::getRequests)
+				.map(AtomicLong::get)
+				.mapToLong(Long::longValue)
+				.sum();
 
-			final long totalRequests = stats.stream()
-					.map(HttpAccessLogStats::getRequests)
-					.map(AtomicLong::get)
-					.mapToLong(Long::longValue)
-					.sum();
+		//This gives the total requests per second (average) that will alow to contrast versus the threshold.
+		double requestsSecond = Math.round((float) totalRequests / alertTimeWindow* 100.0) / 100.0;
 
-			//This gives the total requests per second (average) that will alow to contrast versus the threshold.
-			double requestsSecond = Math.round((float) totalRequests / alertTimeWindow* 100.0) / 100.0;
+		LOG.info("Computed Alert totalRequests={}, requestsSecond={}.", totalRequests, requestsSecond);
 
-			LOG.info("Computed Alert totalRequests={}, requestsSecond={}.", totalRequests, requestsSecond);
-
-			if(requestsSecond >= threshold) {
-				createAlert(totalRequests, requestsSecond, AlertType.HIGH_TRAFFIC, start, end);
-			} else if(alertStateMachine.getState().getId() == AlertType.HIGH_TRAFFIC && requestsSecond < threshold) {
-				createAlert(totalRequests, requestsSecond, AlertType.RECOVER, start, end);
-			} else if(alertStateMachine.getState().getId() == AlertType.RECOVER || alertStateMachine.getState().getId() == AlertType.NO_ALERT) {
-				createAlert(totalRequests, requestsSecond, AlertType.NO_ALERT, start, end);
-			}
-		} else {
-			if(alertStateMachine.getState().getId() == AlertType.HIGH_TRAFFIC) {
-				createAlert(0, 0, AlertType.RECOVER, start, end);
-			} else if(alertStateMachine.getState().getId() == AlertType.RECOVER || alertStateMachine.getState().getId() == AlertType.NO_ALERT) {
-				createAlert(0, 0, AlertType.NO_ALERT, start, end);
-			}
+		if(requestsSecond >= threshold) {
+			createAlert(totalRequests, requestsSecond, AlertType.HIGH_TRAFFIC, start, end);
+		} else if(alertStateMachine.getState().getId() == AlertType.HIGH_TRAFFIC && requestsSecond < threshold) {
+			createAlert(totalRequests, requestsSecond, AlertType.RECOVER, start, end);
+		} else if(alertStateMachine.getState().getId() == AlertType.RECOVER || alertStateMachine.getState().getId() == AlertType.NO_ALERT) {
+			createAlert(totalRequests, requestsSecond, AlertType.NO_ALERT, start, end);
 		}
 	}
 

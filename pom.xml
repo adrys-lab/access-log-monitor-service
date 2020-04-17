@@ -90,12 +90,6 @@
 				<artifactId>secondary-json-adapter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.adrian.rebollo</groupId>
-				<artifactId>secondary-mariadb-adapter</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
 			<!-- END INTERNAL -->
 			<!-- LOMBOK -->
 			<dependency>
@@ -121,6 +115,12 @@
 				<artifactId>spring-statemachine-core</artifactId>
 				<version>1.2.3.RELEASE</version>
 			</dependency>
+			<!--Guava-->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>29.0-jre</version>
+			</dependency>
 			<!--Apache Commons-->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
@@ -142,12 +142,6 @@
 						<artifactId>junit-vintage-engine</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.testcontainers</groupId>
-				<artifactId>mariadb</artifactId>
-				<version>${testcontainers.version}</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.testcontainers</groupId>

@@ -10,15 +10,6 @@ spring:
   main:
     web-environment: false
     web-application-type: NONE
-  datasource:
-    url: "${adapters.mariadb.url}?useLegacyDatetimeCode=false&serverTimezone=Europe/Paris"
-    driver-class-name: org.mariadb.jdbc.Driver
-    username: ${adapters.mariadb.username}
-    password: ${adapters.mariadb.password}
-    hikari:
-      connection-timeout: 4000
-  flyway:
-    out-of-order: true
 
 camel:
   component:
@@ -62,7 +53,3 @@ adapters:
     internal-log-stats-queue-dead: 'internal-log--stats.dead'
     internal-log-alert-queue: 'internal-log--alert'
     internal-log-alert-queue-dead: 'internal-log--alert.dead'
-  mariadb:
-    url: 'jdbc:mariadb://localhost:3308/httpmonitor'
-    username: 'root'
-    password: 'pass'

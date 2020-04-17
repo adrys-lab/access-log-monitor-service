@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.PrimaryEndpoint;
-import com.adrian.rebollo.api.HttpAccessLogLineService;
+import com.adrian.rebollo.api.HttpAccessLogStatsService;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
 import com.adrian.rebollo.model.HttpAccessLogLine;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Route for HttpAccessLogLine which are handled by the HttpAccessLogLineService
+ * Route for HttpAccessLogLine which are handled by the HttpAccessLogAlertService
  */
 @Component
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
 
 	private final PrimaryEndpoint endpoint;
 	private final ObjectMapper objectMapper;
-	private final HttpAccessLogLineService httpAccessLogLineService;
+	private final HttpAccessLogStatsService httpAccessLogStatsService;
 	private final Executor logConsumerThreadPool;
 
 	@Override
@@ -48,7 +48,7 @@ public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
 						 */
 						logConsumerThreadPool.execute(() -> {
 							try {
-								httpAccessLogLineService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), HttpAccessLogLine.class));
+								httpAccessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), HttpAccessLogLine.class));
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
 							}

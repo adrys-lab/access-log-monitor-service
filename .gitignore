@@ -5,12 +5,8 @@ target/
 .DS_Store
 .resourceCache
 /kubernetes
-/mariadb
-/log
 /logs
 /json
-.log
-*.log
 
 ### STS ###
 .apt_generated

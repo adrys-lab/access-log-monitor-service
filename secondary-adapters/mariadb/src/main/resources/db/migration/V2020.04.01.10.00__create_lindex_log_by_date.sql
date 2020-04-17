@@ -1,1 +1,0 @@
-CREATE INDEX log_insert_time_idx ON log(insert_time);

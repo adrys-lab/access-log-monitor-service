@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.PrimaryEndpoint;
 import com.adrian.rebollo.api.ExternalDispatcherObserver;
+import com.adrian.rebollo.api.HttpAccessLogAlertService;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
 import com.adrian.rebollo.model.HttpAccessLogStats;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,7 @@ public class HttpAccessLogStatsRoute extends EnhancedRouteBuilder {
 
 	private final PrimaryEndpoint endpoint;
 	private final ObjectMapper objectMapper;
+	private final HttpAccessLogAlertService httpAccessLogAlertService;
 	private final ExternalDispatcherObserver externalDispatcherObserver;
 
 	@Override
@@ -30,6 +32,9 @@ public class HttpAccessLogStatsRoute extends EnhancedRouteBuilder {
 		from(queue(endpoint.getInternalLogStatsQueue()).setConcurrentConsumers(1).setTransacted(true).build())
 				.process((exchange) -> {
 					HttpAccessLogStats payload = objectMapper.readValue(exchange.getIn().getBody(String.class), HttpAccessLogStats.class);
+					//route the stats to the alert service
+					httpAccessLogAlertService.handle(payload);
+					//route the stats to the ExternalDispatcherObserver
 					externalDispatcherObserver.notify(payload);
 				});
 	}

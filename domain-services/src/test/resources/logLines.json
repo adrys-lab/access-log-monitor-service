@@ -3,6 +3,7 @@
   "logs": [
 
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.1",
       "identifier": "user1",
       "user": "mary",
@@ -12,6 +13,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.2",
       "identifier": "user2",
       "user": "marc",
@@ -21,6 +23,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.3",
       "identifier": "user3",
       "user": "mary",
@@ -30,6 +33,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.4",
       "identifier": "user4",
       "user": "adrian",
@@ -39,6 +43,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.5",
       "identifier": "user5",
       "user": "adrian",
@@ -48,6 +53,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.6",
       "identifier": "user6",
       "user": "adrian",
@@ -57,6 +63,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.7",
       "identifier": "user7",
       "user": "adrian",
@@ -66,6 +73,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.8",
       "identifier": "user8",
       "user": "adrian",
@@ -75,6 +83,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.9",
       "identifier": "user9",
       "user": "mary",
@@ -84,6 +93,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.1",
       "identifier": "user1",
       "user": "pol",
@@ -93,6 +103,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.1",
       "identifier": "user1",
       "user": "pol",
@@ -102,6 +113,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.1",
       "identifier": "user1",
       "user": "pol",
@@ -111,6 +123,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.2",
       "identifier": "user2",
       "user": "pol",
@@ -120,6 +133,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.2",
       "identifier": "user2",
       "user": "mary",
@@ -129,6 +143,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.2",
       "identifier": "user2",
       "user": "mary",
@@ -138,6 +153,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.2",
       "identifier": "user2",
       "user": "mary",
@@ -147,6 +163,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.3",
       "identifier": "user3",
       "user": "mary",
@@ -156,6 +173,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.3",
       "identifier": "user3",
       "user": "mary",
@@ -165,6 +183,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.3",
       "identifier": "user3",
       "user": "mary",
@@ -174,6 +193,7 @@
       "contentSize": 20
     },
     {
+      "insertTime": "10-02-2020 10:12:33",
       "host": "127.0.0.3",
       "identifier": "user3",
       "user": "mary",

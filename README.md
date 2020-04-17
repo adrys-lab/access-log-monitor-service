@@ -18,7 +18,6 @@ Create a simple console program that monitors HTTP traffic on your machine:
 
 ## Api Tech Stack and libraries
 * Used Spring Boot (without WEB context -> `web-application-type: NONE`)
-* MariaDB for storage
 * AMQ for Internal Message Broker with Apache Camel.
 * Lombok
 * Spring statemachine for Alert stat Machine Pattern (explained later)

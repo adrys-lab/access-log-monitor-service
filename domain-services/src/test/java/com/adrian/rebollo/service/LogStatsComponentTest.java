@@ -1,6 +1,8 @@
 package com.adrian.rebollo.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +28,8 @@ public class LogStatsComponentTest {
 	@Test
 	public void testCompute() {
 
-		final HttpAccessLogStats httpAccessLogStats = new HttpAccessLogStats();
-
 		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+				.insertTime(LocalDateTime.now())
 				.host("127.0.0.1")
 				.identifier("user1")
 				.user("mary")
@@ -38,7 +39,7 @@ public class LogStatsComponentTest {
 				.contentSize(12)
 				.build();
 
-		httpAccessLogStatsComponent.compute(httpAccessLogStats, logLine);
+		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine));
 
 		final HttpAccessLogStats expected = new HttpAccessLogStats()
 				.setRequests(new AtomicLong(1))
@@ -58,9 +59,8 @@ public class LogStatsComponentTest {
 	@Test
 	public void testComputeSeveral() {
 
-		final HttpAccessLogStats httpAccessLogStats = new HttpAccessLogStats();
-
 		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+				.insertTime(LocalDateTime.now())
 				.host("127.0.0.1")
 				.identifier("user1")
 				.user("marc")
@@ -71,6 +71,7 @@ public class LogStatsComponentTest {
 				.build();
 
 		final HttpAccessLogLine secondLogLine = HttpAccessLogLine.builder()
+				.insertTime(LocalDateTime.now())
 				.host("127.0.0.2")
 				.identifier("user1")
 				.user("mary")
@@ -81,6 +82,7 @@ public class LogStatsComponentTest {
 				.build();
 
 		final HttpAccessLogLine thirdLogLine = HttpAccessLogLine.builder()
+				.insertTime(LocalDateTime.now())
 				.host("127.0.0.3")
 				.identifier("user1")
 				.user("marc")
@@ -90,9 +92,7 @@ public class LogStatsComponentTest {
 				.contentSize(30)
 				.build();
 
-		httpAccessLogStatsComponent.compute(httpAccessLogStats, logLine);
-		httpAccessLogStatsComponent.compute(httpAccessLogStats, secondLogLine);
-		httpAccessLogStatsComponent.compute(httpAccessLogStats, thirdLogLine);
+		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
 
 		final HttpAccessLogStats expected = new HttpAccessLogStats()
 				.setRequests(new AtomicLong(3))
@@ -111,15 +111,57 @@ public class LogStatsComponentTest {
 	}
 
 	@Test
+	public void setsMaxAndMinDate() {
+
+		LocalDateTime firstDate = LocalDateTime.now().minus(10, ChronoUnit.SECONDS);
+		LocalDateTime lastDate = LocalDateTime.now().plus(10, ChronoUnit.SECONDS);
+
+		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+				.insertTime(firstDate)
+				.host("127.0.0.1")
+				.identifier("user1")
+				.user("marc")
+				.httpMethod(HttpMethod.GET)
+				.resource("/metrics/products")
+				.returnedStatus(201)
+				.contentSize(10)
+				.build();
+
+		final HttpAccessLogLine secondLogLine = HttpAccessLogLine.builder()
+				.insertTime(LocalDateTime.now())
+				.host("127.0.0.2")
+				.identifier("user1")
+				.user("mary")
+				.httpMethod(HttpMethod.PUT)
+				.resource("/metrics/user/buys")
+				.returnedStatus(200)
+				.contentSize(20)
+				.build();
+
+		final HttpAccessLogLine thirdLogLine = HttpAccessLogLine.builder()
+				.insertTime(lastDate)
+				.host("127.0.0.3")
+				.identifier("user1")
+				.user("marc")
+				.httpMethod(HttpMethod.GET)
+				.resource("/endpoint/user")
+				.returnedStatus(404)
+				.contentSize(30)
+				.build();
+
+		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
+
+		Assert.assertEquals(0, ChronoUnit.SECONDS.between(firstDate, httpAccessLogStats.getStart()));
+		Assert.assertEquals(0, ChronoUnit.SECONDS.between(lastDate, httpAccessLogStats.getEnd()));
+	}
+
+	@Test
 	public void testAggregation() throws IOException {
 
-		final HttpAccessLogStats httpAccessLogStats = new HttpAccessLogStats();
 
 		final Logs logs = new ObjectMapper().readValue(getClass().getResource("/logLines.json"), Logs.class);
 
-		logs.logs.forEach((log) -> httpAccessLogStatsComponent.compute(httpAccessLogStats, log));
-
-		httpAccessLogStatsComponent.aggregate(httpAccessLogStats);
+		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(logs.logs);
 
 		final HttpAccessLogStats expected = new HttpAccessLogStats()
 				.setRequests(new AtomicLong(20))

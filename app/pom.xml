@@ -34,15 +34,11 @@
 			<groupId>com.adrian.rebollo</groupId>
 			<artifactId>secondary-json-adapter</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.adrian.rebollo</groupId>
-			<artifactId>secondary-mariadb-adapter</artifactId>
-		</dependency>
 
-		<!-- Database -->
+		<!-- Aspect -->
 		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
 		</dependency>
 
 		<!-- Jackson -->
@@ -68,11 +64,6 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>mariadb</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -1,1 +1,0 @@
-CREATE INDEX stats_insert_time_idx ON stats(insert_time);

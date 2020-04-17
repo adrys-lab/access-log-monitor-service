@@ -13,15 +13,6 @@ spring:
   main:
     web-environment: false
     web-application-type: NONE
-  datasource:
-    url: "${adapters.mariadb.url}?useLegacyDatetimeCode=false&serverTimezone=Europe/Paris"
-    driver-class-name: org.mariadb.jdbc.Driver
-    username: ${adapters.mariadb.username}
-    password: ${adapters.mariadb.password}
-    hikari:
-      connection-timeout: 4000
-  flyway:
-    out-of-order: true
 
 camel:
   component:
@@ -73,7 +64,3 @@ adapters:
   json:
     enabled: true
     file-name: './json/access-log-monitor-service.json'
-  mariadb:
-    url: 'jdbc:mariadb://localhost:3308/httpmonitor'
-    username: 'root'
-    password: 'pass'

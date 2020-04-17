@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,21 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 public final class ContainerEnvironment implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
 
   @Container
-  private static final MariaDBContainer MARIA_DB_CONTAINER;
-  @Container
   private static final GenericContainer ACTIVE_MQ_CONTAINER;
 
   private static File accessLogFile;
 
   static {
-    MARIA_DB_CONTAINER =
-        (MariaDBContainer)
-            new MariaDBContainer()
-                .withUsername(EnvVars.DB_USER)
-                .withDatabaseName(EnvVars.DB_NAME)
-                .withPassword(EnvVars.DB_PASSWORD)
-                .waitingFor(Wait.forLogMessage(".*mysqld: ready for connections.*", 1));
-
     ACTIVE_MQ_CONTAINER =
         new GenericContainer("webcenter/activemq:" + EnvVars.ACTIVEMQ_VERSION)
             .withExposedPorts(8161, 61616, 61613)
@@ -51,11 +40,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
 
       setupTestAccessLogFile();
 
-      if (!MARIA_DB_CONTAINER.isRunning()) {
-        MARIA_DB_CONTAINER.start();
-        setupDBEnvVars();
-      }
-
       if (!ACTIVE_MQ_CONTAINER.isRunning()) {
         ACTIVE_MQ_CONTAINER.start();
         setupAMQEnvVars();
@@ -65,10 +49,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
 
   @Override
   public void afterAll(ExtensionContext extensionContext) {
-    if (MARIA_DB_CONTAINER.isRunning()) {
-      MARIA_DB_CONTAINER.close();
-      MARIA_DB_CONTAINER.stop();
-    }
 
     if (ACTIVE_MQ_CONTAINER.isRunning()) {
       ACTIVE_MQ_CONTAINER.close();
@@ -79,10 +59,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
 
   @Override
   public void afterEach(ExtensionContext extensionContext) {
-    if (MARIA_DB_CONTAINER.isRunning()) {
-      MARIA_DB_CONTAINER.close();
-      MARIA_DB_CONTAINER.stop();
-    }
     if (ACTIVE_MQ_CONTAINER.isRunning()) {
       ACTIVE_MQ_CONTAINER.close();
       ACTIVE_MQ_CONTAINER.stop();
@@ -92,11 +68,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
 
   @Override
   public void beforeAll(ExtensionContext extensionContext) {
-    if (!MARIA_DB_CONTAINER.isRunning()) {
-      MARIA_DB_CONTAINER.start();
-      setupDBEnvVars();
-    }
-
     if (!ACTIVE_MQ_CONTAINER.isRunning()) {
       ACTIVE_MQ_CONTAINER.start();
       setupAMQEnvVars();
@@ -107,11 +78,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
 
   @Override
   public void beforeEach(ExtensionContext extensionContext) {
-    if (!MARIA_DB_CONTAINER.isRunning()) {
-      MARIA_DB_CONTAINER.start();
-      setupDBEnvVars();
-    }
-
     if (!ACTIVE_MQ_CONTAINER.isRunning()) {
       ACTIVE_MQ_CONTAINER.start();
       setupAMQEnvVars();
@@ -139,12 +105,6 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
     } catch (Exception e) {
       LOG.error("Impossible forceDelete file");
     }
-  }
-
-  private static void setupDBEnvVars() {
-    System.setProperty(EnvVars.DB_URL_ENV_VAR, MARIA_DB_CONTAINER.getJdbcUrl());
-    System.setProperty(EnvVars.DB_USER_ENV_VAR, MARIA_DB_CONTAINER.getUsername());
-    System.setProperty(EnvVars.DB_PASSWORD_ENV_VAR, MARIA_DB_CONTAINER.getPassword());
   }
 
   private static void setupAMQEnvVars() {

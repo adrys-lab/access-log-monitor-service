@@ -17,6 +17,5 @@
 	<modules>
 		<module>log</module>
 		<module>json</module>
-		<module>mariadb</module>
 	</modules>
 </project>

@@ -1,7 +1,12 @@
 package com.adrian.rebollo.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,7 +39,38 @@ public class HttpAccessLogStatsComponent {
 	 */
 	private final Range<Integer> failedRange = Range.between(300, 599);
 
-	public void compute(HttpAccessLogStats httpAccessLogStats, HttpAccessLogLine logLine) {
+	HttpAccessLogStats aggregateLogs(final List<HttpAccessLogLine> logs) {
+
+		final HttpAccessLogStats httpAccessLogStats = new HttpAccessLogStats();
+
+		//get min and max date in the same loop iteration (not double loop to get both)
+		final LongSummaryStatistics instantLogStatistics = getInstantLogStatistics(logs);
+		httpAccessLogStats.setStart(fromEpoch(instantLogStatistics.getMin()));
+		httpAccessLogStats.setEnd(fromEpoch(instantLogStatistics.getMax()));
+
+		LOG.info("Started aggregating {} log lines data.", logs.size());
+
+		//compute every single Log Line independently.
+		logs.forEach((logLine -> compute(httpAccessLogStats, logLine)));
+
+		//once every single log line has been computed, aggregate all of them -> this allows to get the MAX (top) statistics.
+		aggregate(httpAccessLogStats);
+		return httpAccessLogStats;
+	}
+
+	private LocalDateTime fromEpoch(long epoch) {
+		return Instant.ofEpochMilli(epoch).atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	private LongSummaryStatistics getInstantLogStatistics(List<HttpAccessLogLine> logs) {
+		return logs.stream()
+				.map(HttpAccessLogLine::getInsertTime)
+				.map((date) -> date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+				.mapToLong(Long::new)
+				.summaryStatistics();
+	}
+
+	private void compute(HttpAccessLogStats httpAccessLogStats, HttpAccessLogLine logLine) {
 
 		Objects.requireNonNull(logLine, "logLine has ben called to compute with null value.");
 		Objects.requireNonNull(httpAccessLogStats, "httpAccessLogStats has ben called to compute with null value.");
@@ -59,7 +95,7 @@ public class HttpAccessLogStatsComponent {
 		}
 	}
 
-	public void aggregate(HttpAccessLogStats httpAccessLogStats) {
+	private void aggregate(HttpAccessLogStats httpAccessLogStats) {
 
 		Objects.requireNonNull(httpAccessLogStats, "httpAccessLogStats has ben called to aggregate with null value.");
 

@@ -1,14 +1,11 @@
 package com.adrian.rebollo.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,16 +13,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.dao.HttpAccessLogStatsDao;
 import com.adrian.rebollo.model.AlertType;
 import com.adrian.rebollo.model.HttpAccessLogAlert;
 import com.adrian.rebollo.model.HttpAccessLogStats;
@@ -33,11 +27,8 @@ import com.adrian.rebollo.model.HttpAccessLogStats;
 @RunWith(MockitoJUnitRunner.class)
 public class HttpAccessLogAlertServiceImplTest {
 
-	@InjectMocks
 	private HttpAccessLogAlertServiceImpl httpAccessLogAlertService;
 
-	@Mock
-	private HttpAccessLogStatsDao httpAccessLogStatsDao;
 	@Mock
 	private InternalDispatcher internalDispatcher;
 	@Mock
@@ -50,9 +41,12 @@ public class HttpAccessLogAlertServiceImplTest {
 
 	@Before
 	public void init() {
-		ReflectionTestUtils.setField(httpAccessLogAlertService, "alertTimeWindow", 120);
-		ReflectionTestUtils.setField(httpAccessLogAlertService, "threshold", 10);
-		ReflectionTestUtils.setField(httpAccessLogAlertService, "chunk", 10);
+
+		// tests will be based on the assessment required time windows, stats delay and threshold, so 120 seconds for alerts time window and 10 seconds for report stats.
+		// this affects directly how the threshold is evaluated.
+		httpAccessLogAlertService = new HttpAccessLogAlertServiceImpl(internalDispatcher, 120, 10000, 10, stateMachine);
+
+		httpAccessLogAlertService.init();
 
 		when(stateMachine.getState()).thenReturn(state);
 		when(state.getId()).thenReturn(AlertType.NO_ALERT);
@@ -61,9 +55,7 @@ public class HttpAccessLogAlertServiceImplTest {
 	@Test
 	public void testEmptyResults() {
 
-		httpAccessLogAlertService.alert();
-
-		verify(httpAccessLogStatsDao).findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10));
+		ReflectionTestUtils.invokeMethod(httpAccessLogAlertService, "compute");
 
 		verify(internalDispatcher).dispatch(alertCaptor.capture());
 
@@ -73,11 +65,7 @@ public class HttpAccessLogAlertServiceImplTest {
 	@Test
 	public void buildNoAlert() {
 
-		final HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats();
-
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
-
-		httpAccessLogAlertService.alert();
+		httpAccessLogAlertService.handle(new HttpAccessLogStats());
 
 		verify(stateMachine).sendEvent(AlertType.NO_ALERT);
 		verify(internalDispatcher).dispatch(alertCaptor.capture());
@@ -91,9 +79,7 @@ public class HttpAccessLogAlertServiceImplTest {
 		final HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats()
 				.setRequests(new AtomicLong(3000));
 
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
-
-		httpAccessLogAlertService.alert();
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
 		verify(internalDispatcher).dispatch(alertCaptor.capture());
 		verify(stateMachine).sendEvent(AlertType.HIGH_TRAFFIC);
@@ -106,110 +92,106 @@ public class HttpAccessLogAlertServiceImplTest {
 	public void alertTransitionsNoAlertTrafficRecoverNoAlert() {
 
 		//////////////////FIRST LOG STATS/////////////////////////
-		HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(3000));
+		///***  This creates 12 log stats with 105 requests each = 1260 requests, in a timewindow of 120, gives a 10.5 requests per second, higher than threshold.
+		IntStream.range(0, 12).forEach((i) -> httpAccessLogAlertService.handle(new HttpAccessLogStats()
+				.setRequests(new AtomicLong(105))));
 
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
-
-		httpAccessLogAlertService.alert();
-
-		verify(stateMachine).sendEvent(AlertType.HIGH_TRAFFIC);
+		///*** 10.5 is higher than 10 threshold, so we expect HIGH TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.HIGH_TRAFFIC);
 
 		//////////////////SECOND LOG STATS/////////////////////////
-		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(200));
+		///***  This will add a new log stat, removing the oldest previous stats with 105 requests, and adding a new one with 10,
+		//***   11 log stats with 105 requests each + 1 with 10 = 1165 requests, in a timewindow of 120, gives a 9.71 requests per second, lower than threshold.
+		HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats()
+				.setRequests(new AtomicLong(10));
 
 		when(state.getId()).thenReturn(AlertType.HIGH_TRAFFIC);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		httpAccessLogAlertService.alert();
-
-		verify(stateMachine).sendEvent(AlertType.RECOVER);
+		///*** 9.71 is lower than 10 threshold, so we expect RECOVER cause previous state was HIGH TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.RECOVER);
 
 		//////////////////THIRD LOG STATS/////////////////////////
+		///***  This will add a new log stat, removing the oldest previous stats with 105 requests, and adding a new one with 10,
+		//***   10 log stats with 105 requests each + 2 with 10 = 1070 requests, in a timewindow of 120, gives a 8.92 requests per second, lower than threshold.
 		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(200));
+				.setRequests(new AtomicLong(10));
 
 		when(state.getId()).thenReturn(AlertType.RECOVER);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		httpAccessLogAlertService.alert();
-
-		verify(stateMachine).sendEvent(AlertType.NO_ALERT);
+		///*** 8.92 is lower than 10 threshold, so we expect NO_ALERT cause previous state was RECOVER.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.NO_ALERT);
 	}
 
 	@Test
 	public void alertTransitionsNoAlertNoAlertTrafficRecoverTrafficRecoverNoAlert() {
 
 		//////////////////FIRST LOG STATS/////////////////////////
-		HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(1000));
+		///***  This creates 12 log stats with 95 requests each = 1140 requests, in a timewindow of 120, gives a 9.5 requests per second, lower than threshold.
+		IntStream.range(0, 12).forEach((i) -> httpAccessLogAlertService.handle(new HttpAccessLogStats()
+				.setRequests(new AtomicLong(95))));
 
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
-
-		httpAccessLogAlertService.alert();
-
-		//////////////////1000 REQUESTS IS NOT ENOUGH TO TRIGGER HIGH TRAFFIC --> NO_ALERT /////////////////////////
-		verify(stateMachine).sendEvent(AlertType.NO_ALERT);
+		///*** 9.5 is not enough to trigger HIGH TRAFFIC, so we expect NO ALERT.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.NO_ALERT);
 
 		//////////////////SECOND LOG STATS/////////////////////////
-		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(2500));
+		///***  This will add a new log stat, removing the oldest previous stats with 95 requests, and adding a new one with 160,
+		//***   11 log stats with 95 requests each + 1 with 160 = 1205 requests, in a timewindow of 120, gives a 10.04 requests per second, higher than threshold.
+		HttpAccessLogStats httpAccessLogLine = new HttpAccessLogStats()
+				.setRequests(new AtomicLong(160));
 
-		when(state.getId()).thenReturn(AlertType.NO_ALERT);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		httpAccessLogAlertService.alert();
-
-		//////////////////2500 REQUESTS IS ENOUGH TO TRIGGER HIGH TRAFFIC --> HIGH_TRAFFIC /////////////////////////
-		verify(stateMachine).sendEvent(AlertType.HIGH_TRAFFIC);
+		///*** 10.04 is enough to trigger HIGH TRAFFIC, so we expect NO TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.HIGH_TRAFFIC);
 
 		//////////////////THIRD LOG STATS/////////////////////////
+		///***  This will add a new log stat, removing the oldest previous stats with 95 requests, and adding a new one with 85,
+		//***   10 log stats with 95 requests each + 1 with 160 + 1 with 85 = 1195 requests, in a timewindow of 120, gives a 9.95 requests per second, lower than threshold.
 		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(500));
+				.setRequests(new AtomicLong(85));
 
 		when(state.getId()).thenReturn(AlertType.HIGH_TRAFFIC);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		httpAccessLogAlertService.alert();
-
-		//////////////////500 REQUESTS IS ENOUGH TO TRIGGER HIGH TRAFFIC, SO SWITCH STATE FROM HIGH_TRAFFIC --> RECOVER /////////////////////////
-		verify(stateMachine).sendEvent(AlertType.RECOVER);
+		///*** 9.95 is lower than 10 threshold, so we expect RECOVER cause previous state was HIGH TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.RECOVER);
 
 		//////////////////FOURTH LOG STATS/////////////////////////
+		///***  This will add a new log stat, removing the oldest previous stats with 95 requests, and adding a new one with 180,
+		//***   9 log stats with 95 requests each + 1 with 160 + 1 with 85 + 1 with 180 = 1280 requests, in a timewindow of 120, gives a 10.66 requests per second, higher than threshold.
 		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(5200));
+				.setRequests(new AtomicLong(180));
 
 		when(state.getId()).thenReturn(AlertType.RECOVER);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		//////////////////5200 REQUESTS IS ENOUGH TO TRIGGER HIGH TRAFFIC, SO SWITCH STATE FROM RECOVER --> HIGH_TRAFFIC /////////////////////////
-		httpAccessLogAlertService.alert();
-
-		verify(stateMachine, Mockito.times(2)).sendEvent(AlertType.HIGH_TRAFFIC);
+		///*** 10.66 is higher than 10 threshold, so we expect HIGH_TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.HIGH_TRAFFIC);
 
 		//////////////////FIFTH LOG STATS/////////////////////////
+		///***  This will add a new log stat, removing the oldest previous stats with 95 requests, and adding a new one with 75,
+		//***   8 log stats with 95 requests each + 1 with 160 + 1 with 85 + 1 with 180 + 1 with 75 = 1195 requests, in a timewindow of 120, gives a 9.95 requests per second, lower than threshold.
 		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(200));
+				.setRequests(new AtomicLong(10));
 
 		when(state.getId()).thenReturn(AlertType.HIGH_TRAFFIC);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		//////////////////200 REQUESTS IS ENOUGH TO TRIGGER HIGH TRAFFIC, SO SWITCH STATE FROM HIGH_TRAFFIC --> RECOVER /////////////////////////
-		httpAccessLogAlertService.alert();
-
-		verify(stateMachine, Mockito.times(2)).sendEvent(AlertType.RECOVER);
+		///*** 9.95 is lower than 10 threshold, so we expect RECOVER cause previous state was HIGH TRAFFIC.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.RECOVER);
 
 		//////////////////SIXTH LOG STATS/////////////////////////
+		///***  This will add a new log stat, removing the oldest previous stats with 95 requests, and adding a new one with 75,
+		//***   7 log stats with 95 requests each + 1 with 160 + 1 with 85 + 1 with 180 + 1 with 75 + 1 with 90 = 1175 requests, in a timewindow of 120, gives a 9.79 requests per second, lower than threshold.
 		httpAccessLogLine = new HttpAccessLogStats()
-				.setRequests(new AtomicLong(200));
+				.setRequests(new AtomicLong(75));
 
 		when(state.getId()).thenReturn(AlertType.RECOVER);
-		when(httpAccessLogStatsDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class), eq(10))).thenReturn(Optional.of(List.of(httpAccessLogLine)));
+		httpAccessLogAlertService.handle(httpAccessLogLine);
 
-		httpAccessLogAlertService.alert();
-
-		//////////////////200 REQUESTS IS ENOUGH TO TRIGGER HIGH TRAFFIC, SO SWITCH STATE FROM RECOVER --> NO_ALERT /////////////////////////
-		verify(stateMachine, Mockito.times(2)).sendEvent(AlertType.NO_ALERT);
+		///*** 9.79 is lower than 10 threshold, so we expect NO_ALERT cause previous state was RECOVER.
+		verify(stateMachine, atLeastOnce()).sendEvent(AlertType.NO_ALERT);
 	}
 }
