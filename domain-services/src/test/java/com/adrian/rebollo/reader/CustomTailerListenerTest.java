@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.adrian.rebollo.api.InternalDispatcher;
 import com.adrian.rebollo.model.AccessLogLine;
-import com.adrian.rebollo.parser.HttpAccessLogLineParser;
+import com.adrian.rebollo.parser.AccessLogLineParser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomTailerListenerTest {
@@ -20,7 +20,7 @@ public class CustomTailerListenerTest {
 	private CustomTailerListener customTailerListener;
 
 	@Mock
-	private HttpAccessLogLineParser httpAccessLogLineParser;
+	private AccessLogLineParser accessLogLineParser;
 	@Mock
 	ThreadPoolTaskExecutor executor;
 	@Mock
@@ -28,7 +28,7 @@ public class CustomTailerListenerTest {
 
 	@Before
 	public void init() {
-		customTailerListener = new CustomTailerListener(httpAccessLogLineParser, internalDispatcher, executor);
+		customTailerListener = new CustomTailerListener(accessLogLineParser, internalDispatcher, executor);
 	}
 
 	@Test

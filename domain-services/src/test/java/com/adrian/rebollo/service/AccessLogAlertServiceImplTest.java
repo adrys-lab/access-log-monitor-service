@@ -27,7 +27,7 @@ import com.adrian.rebollo.model.AccessLogStats;
 @RunWith(MockitoJUnitRunner.class)
 public class AccessLogAlertServiceImplTest {
 
-	private HttpAccessLogAlertServiceImpl httpAccessLogAlertService;
+	private AccessLogAlertServiceImpl httpAccessLogAlertService;
 
 	@Mock
 	private InternalDispatcher internalDispatcher;
@@ -44,7 +44,7 @@ public class AccessLogAlertServiceImplTest {
 
 		// tests will be based on the assessment required time windows, stats delay and threshold, so 120 seconds for alerts time window and 10 seconds for report stats.
 		// this affects directly how the threshold is evaluated.
-		httpAccessLogAlertService = new HttpAccessLogAlertServiceImpl(internalDispatcher, stateMachine);
+		httpAccessLogAlertService = new AccessLogAlertServiceImpl(internalDispatcher, stateMachine);
 
 		ReflectionTestUtils.setField(httpAccessLogAlertService, "alertTimeWindow", 120);
 		ReflectionTestUtils.setField(httpAccessLogAlertService, "threshold", 10);

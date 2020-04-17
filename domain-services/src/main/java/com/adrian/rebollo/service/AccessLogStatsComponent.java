@@ -16,7 +16,7 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.adrian.rebollo.exception.HttpLogLineStatsParsingException;
+import com.adrian.rebollo.exception.LogLineStatsParsingException;
 import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.model.AccessLogStats;
 
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class HttpAccessLogStatsComponent {
+public class AccessLogStatsComponent {
 
 	/**
 	 * ranges of successful HTTP Codes.
@@ -156,6 +156,6 @@ public class HttpAccessLogStatsComponent {
 			return resource.substring(0, resource.indexOf("/", 1));
 		}
 
-		throw new HttpLogLineStatsParsingException(String.format("The given resource is not well formatted resource=%s", resource));
+		throw new LogLineStatsParsingException(String.format("The given resource is not well formatted resource=%s", resource));
 	}
 }

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.adrian.rebollo.exception.HttpLogLineParsingException;
+import com.adrian.rebollo.exception.LogLineParsingException;
 import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.model.HttpMethod;
 
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class HttpAccessLogLineParser implements Function<String, AccessLogLine> {
+public class AccessLogLineParser implements Function<String, AccessLogLine> {
 
 	//This REGEX expression matches with the Apache Common Access Log pattern, used -> https://www.regexpal.com/
 	private static final String HTTP_LOG_LINE_REGEX = "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
@@ -48,10 +48,10 @@ public class HttpAccessLogLineParser implements Function<String, AccessLogLine> 
 						.contentSize(Long.parseLong(lineMatcher.group(9)))
 						.build();
 			} else {
-				throw new HttpLogLineParsingException(String.format("An error occurred parsing the input line=%s", line));
+				throw new LogLineParsingException(String.format("An error occurred parsing the input line=%s", line));
 			}
 		} catch (Exception exception) {
-			throw new HttpLogLineParsingException(String.format("An error occurred parsing the input line=%s", line));
+			throw new LogLineParsingException(String.format("An error occurred parsing the input line=%s", line));
 		}
 	}
 

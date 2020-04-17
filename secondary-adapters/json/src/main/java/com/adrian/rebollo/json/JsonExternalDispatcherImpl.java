@@ -28,15 +28,15 @@ public class JsonExternalDispatcherImpl implements ExternalDispatcher {
 
 	@PostConstruct
 	public void init() {
-		File json = FileUtils.getFile(fileName);
+		final File json = FileUtils.getFile(fileName);
+		// if the json is empty, create a new json file.
 		if(json.length() == 0) {
-			// if the json is empty, create a new json file.
 			jsonDispatcherComponent.createNewJson();
 		}
 	}
 
 	@Override
-	public void dispatch(LogInfo logInfo) {
+	public void dispatch(final LogInfo logInfo) {
 		jsonDispatcherComponent.writeObjectToJson(logInfo);
 	}
 }

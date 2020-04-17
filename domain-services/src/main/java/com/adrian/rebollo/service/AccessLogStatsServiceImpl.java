@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.adrian.rebollo.api.HttpAccessLogStatsService;
+import com.adrian.rebollo.api.AccessLogStatsService;
 import com.adrian.rebollo.api.InternalDispatcher;
 import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.model.AccessLogStats;
@@ -23,12 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService {
+public class AccessLogStatsServiceImpl implements AccessLogStatsService {
 
 	//Concurrent thread-safe queue with fast insertion peek and deletion (complexity O(1) for all 3 operations.)
 	private final Queue<AccessLogLine> logLines = new ConcurrentLinkedQueue<>();
 	private final InternalDispatcher internalDispatcher;
-	private final HttpAccessLogStatsComponent httpAccessLogStatsComponent;
+	private final AccessLogStatsComponent accessLogStatsComponent;
 
 	@Value("${service.schedulers.stats.delay}")
 	private int schedulerDelay;
@@ -56,7 +56,7 @@ public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService 
 		final List<AccessLogLine> logs = getLogCandidates(end);
 
 		//aggregate all the log line candidates
-		final AccessLogStats accessLogStats = logs.isEmpty() ? AccessLogStats.empty(start, end) : httpAccessLogStatsComponent.aggregateLogs(logs);
+		final AccessLogStats accessLogStats = logs.isEmpty() ? AccessLogStats.empty(start, end) : accessLogStatsComponent.aggregateLogs(logs);
 
 		LOG.info("Finished aggregation httpAccessLogStats={}.", accessLogStats);
 

@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class HttpAccessLogAlertRoute extends EnhancedRouteBuilder {
+public class AccessLogAlertRouter extends EnhancedRouteBuilder {
 
 	private final PrimaryEndpoint endpoint;
 	private final ObjectMapper objectMapper;

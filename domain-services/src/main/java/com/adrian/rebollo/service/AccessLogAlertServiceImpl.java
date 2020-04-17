@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 
-import com.adrian.rebollo.api.HttpAccessLogAlertService;
+import com.adrian.rebollo.api.AccessLogAlertService;
 import com.adrian.rebollo.api.InternalDispatcher;
 import com.adrian.rebollo.model.AlertType;
 import com.adrian.rebollo.model.AccessLogAlert;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService {
+public class AccessLogAlertServiceImpl implements AccessLogAlertService {
 
 	private final InternalDispatcher internalDispatcher;
 

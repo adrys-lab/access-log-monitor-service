@@ -10,18 +10,18 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.adrian.rebollo.exception.HttpLogLineParsingException;
+import com.adrian.rebollo.exception.LogLineParsingException;
 import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.model.HttpMethod;
 
 public class AccessLogLineParserTest {
 
-	private final HttpAccessLogLineParser httpAccessLogLineParser = new HttpAccessLogLineParser();
+	private final AccessLogLineParser accessLogLineParser = new AccessLogLineParser();
 
 	@Test
 	public void testParse() {
 
-		AccessLogLine response = httpAccessLogLineParser.apply("127.0.0.1 loggeduser mary [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
+		AccessLogLine response = accessLogLineParser.apply("127.0.0.1 loggeduser mary [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
 
 		assertThat(response).isEqualToIgnoringGivenFields(AccessLogLine.builder()
 				.host("127.0.0.1")
@@ -39,7 +39,7 @@ public class AccessLogLineParserTest {
 	@Test
 	public void insertTimeNotNull() {
 
-		AccessLogLine response = httpAccessLogLineParser.apply("127.0.0.1 loggeduser mary [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
+		AccessLogLine response = accessLogLineParser.apply("127.0.0.1 loggeduser mary [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
 
 		Assert.assertEquals(0, ChronoUnit.SECONDS.between(response.getInsertTime(), LocalDateTime.now()));
 	}
@@ -47,7 +47,7 @@ public class AccessLogLineParserTest {
 	@Test
 	public void testDashedLine() {
 
-		AccessLogLine response = httpAccessLogLineParser.apply("- - - [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
+		AccessLogLine response = accessLogLineParser.apply("- - - [09/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
 
 		assertThat(response).isEqualToIgnoringGivenFields(AccessLogLine.builder()
 				.host("")
@@ -62,15 +62,15 @@ public class AccessLogLineParserTest {
 				.build(), "insertTime");
 	}
 
-	@Test(expected = HttpLogLineParsingException.class)
+	@Test(expected = LogLineParsingException.class)
 	public void testExceptionForDate() {
 
-		httpAccessLogLineParser.apply("127.0.0.1 loggeduser mary [50/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
+		accessLogLineParser.apply("127.0.0.1 loggeduser mary [50/May/2018:16:00:42 +0000] \"POST /api/user HTTP/1.0\" 503 12");
 	}
 
-	@Test(expected = HttpLogLineParsingException.class)
+	@Test(expected = LogLineParsingException.class)
 	public void testExceptionForMethod() {
 
-		httpAccessLogLineParser.apply("127.0.0.1 loggeduser mary [50/May/2018:16:00:42 +0000] \"ANOTHERMETHOD /api/user HTTP/1.0\" 503 12");
+		accessLogLineParser.apply("127.0.0.1 loggeduser mary [50/May/2018:16:00:42 +0000] \"ANOTHERMETHOD /api/user HTTP/1.0\" 503 12");
 	}
 }

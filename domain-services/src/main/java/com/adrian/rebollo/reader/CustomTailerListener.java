@@ -7,7 +7,7 @@ import org.apache.commons.io.input.TailerListener;
 import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.parser.HttpAccessLogLineParser;
+import com.adrian.rebollo.parser.AccessLogLineParser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CustomTailerListener implements TailerListener {
 
-	private final HttpAccessLogLineParser httpAccessLogLineParser;
+	private final AccessLogLineParser accessLogLineParser;
 	private final InternalDispatcher internalDispatcher;
 	private final Executor httpLogReaderThreadPool;
 
@@ -51,7 +51,7 @@ public class CustomTailerListener implements TailerListener {
 	 */
 	@Override
 	public void handle(String line) {
-		httpLogReaderThreadPool.execute(() -> internalDispatcher.dispatch(httpAccessLogLineParser.apply(line)));
+		httpLogReaderThreadPool.execute(() -> internalDispatcher.dispatch(accessLogLineParser.apply(line)));
 	}
 
 	@Override

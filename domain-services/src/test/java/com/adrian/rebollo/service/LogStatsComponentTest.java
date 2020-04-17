@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 
 public class LogStatsComponentTest {
 
-	private final HttpAccessLogStatsComponent httpAccessLogStatsComponent = new HttpAccessLogStatsComponent();
+	private final AccessLogStatsComponent accessLogStatsComponent = new AccessLogStatsComponent();
 
 	@Test
 	public void testCompute() {
@@ -39,7 +39,7 @@ public class LogStatsComponentTest {
 				.contentSize(12)
 				.build();
 
-		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine));
+		final AccessLogStats accessLogStats = accessLogStatsComponent.aggregateLogs(List.of(logLine));
 
 		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(1))
@@ -92,7 +92,7 @@ public class LogStatsComponentTest {
 				.contentSize(30)
 				.build();
 
-		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
+		final AccessLogStats accessLogStats = accessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
 
 		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(3))
@@ -149,7 +149,7 @@ public class LogStatsComponentTest {
 				.contentSize(30)
 				.build();
 
-		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
+		final AccessLogStats accessLogStats = accessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
 
 		Assert.assertEquals(0, ChronoUnit.SECONDS.between(firstDate, accessLogStats.getStart()));
 		Assert.assertEquals(0, ChronoUnit.SECONDS.between(lastDate, accessLogStats.getEnd()));
@@ -161,7 +161,7 @@ public class LogStatsComponentTest {
 
 		final Logs logs = new ObjectMapper().readValue(getClass().getResource("/logLines.json"), Logs.class);
 
-		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(logs.logs);
+		final AccessLogStats accessLogStats = accessLogStatsComponent.aggregateLogs(logs.logs);
 
 		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(20))

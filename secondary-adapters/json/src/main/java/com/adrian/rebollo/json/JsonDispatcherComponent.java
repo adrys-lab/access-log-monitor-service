@@ -47,7 +47,7 @@ public class JsonDispatcherComponent {
 	 * writes a new objecct into the json file.
 	 * we need to synchronize this method as the outputstream and inputstream need to be free and closed before get it. --> file access needs to be one thread at time.
 	 */
-	synchronized void writeObjectToJson(LogInfo logInfo) {
+	synchronized void writeObjectToJson(final LogInfo logInfo) {
 
 		final JsonInfo jsonInfo = readJsonInfo();
 
@@ -86,7 +86,7 @@ public class JsonDispatcherComponent {
 
 		/**
 		 * This list allows to have all the objects in the same list.
-		 * with this approach, all the elements are ordered by insertion, so its easier to debug than having 2 lists independently.
+		 * with this approach, all the elements are ordered by insertion, so its easier to debug than having 2 lists (1 for stats and 1 for alerts) independently.
 		 */
 		@JsonProperty("result")
 		private List<Object> result = new LinkedList<>();

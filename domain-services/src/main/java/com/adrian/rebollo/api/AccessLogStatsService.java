@@ -5,7 +5,7 @@ import com.adrian.rebollo.model.AccessLogLine;
 /**
  * LogLine Service interface.
  */
-public interface HttpAccessLogStatsService {
+public interface AccessLogStatsService {
 
 	void handle(AccessLogLine accessLogLine);
 }

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.PrimaryEndpoint;
-import com.adrian.rebollo.api.HttpAccessLogStatsService;
+import com.adrian.rebollo.api.AccessLogStatsService;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
 import com.adrian.rebollo.model.AccessLogLine;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
+public class AccessLogLineRouter extends EnhancedRouteBuilder {
 
 	@Value("${service.thread-pool-size}")
 	private int threadPoolSize;
@@ -30,7 +30,7 @@ public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
 
 	private final PrimaryEndpoint endpoint;
 	private final ObjectMapper objectMapper;
-	private final HttpAccessLogStatsService httpAccessLogStatsService;
+	private final AccessLogStatsService accessLogStatsService;
 	private final Executor logConsumerThreadPool;
 
 	@Override
@@ -43,12 +43,12 @@ public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
 				.setTransacted(true).build())
 				.process((exchange) ->
 						/**
-						 * Use the configured ThreadPoolTaskExecutor in {@link com.adrian.rebollo.AmqConfig} for parallel message handling for persisting Log Lines.
-						 * This helps to speed-up log messages ingestion and processing.
+						 * Use the configured ThreadPoolTaskExecutor in {@link com.adrian.rebollo.AmqConfig} for parallel message handling for handling Log Lines.
+						 * This helps to speed-up log messages ingestion.
 						 */
 						logConsumerThreadPool.execute(() -> {
 							try {
-								httpAccessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogLine.class));
+								accessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogLine.class));
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
 							}

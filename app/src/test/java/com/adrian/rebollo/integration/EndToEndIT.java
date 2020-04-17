@@ -51,8 +51,9 @@ public class EndToEndIT {
 	@Test
 	void endToEndTest() throws Exception {
 
-		//////////////////GIVEN 3000 LOG LINES TO BE READ (each logline differs on content-length) /////////////////////////
+		Thread.sleep(2000);
 
+		//////////////////GIVEN 3000 LOG LINES TO BE READ (each logline differs on content-length) /////////////////////////
 		final StringBuilder logLines = new StringBuilder();
 		String logLine = "127.123.22.54 user adrian [09/May/2018:16:00:42 +0000] \"POST /buy/user HTTP/1.0\" 503 %s \n";
 		int count = 0;

@@ -27,12 +27,12 @@ import com.adrian.rebollo.model.AccessLogStats;
 public class AccessLogStatsServiceImplTest {
 
 	@InjectMocks
-	private HttpAccessLogStatsServiceImpl httpAccessLogStatsService;
+	private AccessLogStatsServiceImpl httpAccessLogStatsService;
 
 	@Mock
 	private InternalDispatcher internalDispatcher;
 	@Mock
-	private HttpAccessLogStatsComponent httpAccessLogStatsComponent;
+	private AccessLogStatsComponent accessLogStatsComponent;
 
 	@Captor
 	private ArgumentCaptor<AccessLogStats> statsCaptor;
@@ -55,12 +55,12 @@ public class AccessLogStatsServiceImplTest {
 
 		final AccessLogLine accessLogLine = new AccessLogLine().setInsertTime(LocalDateTime.now());
 
-		when(httpAccessLogStatsComponent.aggregateLogs(anyList())).thenReturn(new AccessLogStats());
+		when(accessLogStatsComponent.aggregateLogs(anyList())).thenReturn(new AccessLogStats());
 
 		httpAccessLogStatsService.handle(accessLogLine);
 		httpAccessLogStatsService.aggregate();
 
-		verify(httpAccessLogStatsComponent).aggregateLogs(eq(List.of(accessLogLine)));
+		verify(accessLogStatsComponent).aggregateLogs(eq(List.of(accessLogLine)));
 		verify(internalDispatcher).dispatch(any(AccessLogStats.class));
 	}
 }

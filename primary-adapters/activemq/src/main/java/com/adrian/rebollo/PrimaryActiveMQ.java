@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Internal dispatcher implementation to internally dispatch objects into AMQ destinations.
+ */
 @Slf4j
 @Service
 @EnableJms
