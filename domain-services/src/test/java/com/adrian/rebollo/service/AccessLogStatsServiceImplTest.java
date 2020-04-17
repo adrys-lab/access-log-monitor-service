@@ -7,8 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Queue;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,5 +65,31 @@ public class AccessLogStatsServiceImplTest {
 
 		verify(accessLogStatsComponent).aggregateLogs(eq(List.of(accessLogLine)));
 		verify(internalDispatcher).dispatch(any(AccessLogStats.class));
+	}
+
+	@Test
+	public void onlyProcessLogLinesByDateBefore() {
+
+		final AccessLogLine accessLogLine = new AccessLogLine().setInsertTime(LocalDateTime.now().plus(10, ChronoUnit.SECONDS));
+
+		httpAccessLogStatsService.handle(accessLogLine);
+		httpAccessLogStatsService.aggregate();
+
+		Queue<AccessLogLine> logs = (Queue<AccessLogLine>) ReflectionTestUtils.getField(httpAccessLogStatsService, "logLines");
+
+		Assert.assertFalse(logs.isEmpty());
+	}
+
+	@Test
+	public void processLogLinesByDateBefore() {
+
+		final AccessLogLine accessLogLine = new AccessLogLine().setInsertTime(LocalDateTime.now().minus(10, ChronoUnit.SECONDS));
+
+		httpAccessLogStatsService.handle(accessLogLine);
+		httpAccessLogStatsService.aggregate();
+
+		Queue<AccessLogLine> logs = (Queue<AccessLogLine>) ReflectionTestUtils.getField(httpAccessLogStatsService, "logLines");
+
+		Assert.assertTrue(logs.isEmpty());
 	}
 }
