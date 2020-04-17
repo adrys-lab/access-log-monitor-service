@@ -21,20 +21,18 @@ camel:
       password: ${adapters.activemq.password}
 
 service:
+  thread-pool-size: 12
+  max-thread-pool-size: 12
   reader:
     file-name: /tmp/access.log
     delay: 1
+  alert:
+    time-window: 30
+    threshold: 5
   schedulers:
-    enabled: true
-    alert:
-      initial-delay: 11000
-      delay: 10000
-      time-window: 30
-      threshold: 5
-      chunk: 10000
     stats:
-      delay: 9000
-      chunk: 10000
+      enabled: true
+      delay: 10000
 adapters:
   camel:
     shutdown-timeout: 5s

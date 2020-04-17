@@ -40,21 +40,6 @@
 		</triggeringPolicy>
 	</appender>
 
-	<appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOGS}/hibernate.log</file>
-		<encoder>
-			<Pattern> %d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n </Pattern>
-		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>${LOGS}/hibernate-%i.log</fileNamePattern>
-			<minIndex>1</minIndex>
-			<maxIndex>10</maxIndex>
-		</rollingPolicy>
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<maxFileSize>10MB</maxFileSize>
-		</triggeringPolicy>
-	</appender>
-
 	<appender name="AmqLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOGS}/amq.log</file>
 		<encoder>
@@ -69,10 +54,6 @@
 			<maxFileSize>10MB</maxFileSize>
 		</triggeringPolicy>
 	</appender>
-
-	<logger name="org.hibernate" level="INFO">
-		<appender-ref ref="HibernateLog" />
-	</logger>
 
 	<logger name="org.apache.activemq" level="INFO">
 		<appender-ref ref="AmqLog" />

@@ -15,9 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HttpAccessLogLine {
-
-	private String line;
+public class AccessLogLine {
 
 	private long seqId;
 

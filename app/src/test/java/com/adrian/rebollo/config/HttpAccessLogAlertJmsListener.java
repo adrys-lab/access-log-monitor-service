@@ -9,7 +9,7 @@ import javax.jms.TextMessage;
 import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogStats;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,21 +22,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class HttpAccessLogAlertJmsListener implements MessageListener {
 
-	private Optional<HttpAccessLogStats> httpAccessLogStats = Optional.empty();
+	private Optional<AccessLogStats> httpAccessLogStats = Optional.empty();
 
 	@Override
 	public void onMessage(Message message) {
 		if (message instanceof TextMessage) {
 			try {
 				String text = ((TextMessage) message).getText();
-				httpAccessLogStats = Optional.of(new ObjectMapper().readValue(text, HttpAccessLogStats.class));
+				httpAccessLogStats = Optional.of(new ObjectMapper().readValue(text, AccessLogStats.class));
 			} catch (Exception e) {
 				LOG.error("Exception receiving message={}", message);
 			}
 		}
 	}
 
-	public Optional<HttpAccessLogStats> getHttpAccessLogStats() {
+	public Optional<AccessLogStats> getHttpAccessLogStats() {
 		return httpAccessLogStats;
 	}
 }

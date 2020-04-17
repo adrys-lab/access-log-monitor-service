@@ -87,7 +87,7 @@ public final class ContainerEnvironment implements BeforeAllCallback, BeforeEach
   }
 
   private static void setupTestAccessLogFile() {
-    accessLogFile = new File("test-access.log");
+    accessLogFile = new File("/tmp/access.log");
     try {
       if(accessLogFile.createNewFile()) {
         accessLogFile.setWritable(true);

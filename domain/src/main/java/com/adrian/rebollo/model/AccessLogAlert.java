@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class HttpAccessLogAlert extends LogInfo {
+public class AccessLogAlert extends LogInfo {
 
 	private long requests;
 

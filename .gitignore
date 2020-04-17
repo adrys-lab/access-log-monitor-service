@@ -6,6 +6,8 @@ target/
 .resourceCache
 /kubernetes
 /logs
+*/logs
+*/json
 /json
 
 ### STS ###

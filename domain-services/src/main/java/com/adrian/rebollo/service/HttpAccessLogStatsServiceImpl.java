@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import com.adrian.rebollo.api.HttpAccessLogStatsService;
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.model.HttpAccessLogLine;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogLine;
+import com.adrian.rebollo.model.AccessLogStats;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService {
 
 	//Concurrent thread-safe queue with fast insertion peek and deletion (complexity O(1) for all 3 operations.)
-	private final Queue<HttpAccessLogLine> logLines = new ConcurrentLinkedQueue<>();
+	private final Queue<AccessLogLine> logLines = new ConcurrentLinkedQueue<>();
 	private final InternalDispatcher internalDispatcher;
 	private final HttpAccessLogStatsComponent httpAccessLogStatsComponent;
 
@@ -34,8 +34,8 @@ public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService 
 	private int schedulerDelay;
 
 	@Override
-	public void handle(HttpAccessLogLine httpAccessLogLine) {
-		logLines.offer(httpAccessLogLine);
+	public void handle(AccessLogLine accessLogLine) {
+		logLines.offer(accessLogLine);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService 
 	 */
 	@ConditionalOnProperty( "service.schedulers.stats.enabled" )
 	@Scheduled(fixedDelayString = "${service.schedulers.stats.delay}", initialDelayString = "${service.schedulers.stats.delay}")
-	private void aggregate() {
+	void aggregate() {
 
 		final LocalDateTime end = LocalDateTime.now();
 		final LocalDateTime start = end.minus(schedulerDelay, ChronoUnit.MILLIS);
@@ -53,21 +53,21 @@ public class HttpAccessLogStatsServiceImpl implements HttpAccessLogStatsService 
 		LOG.info("Triggered scheduler to aggregate logs statistics start={}, end={}.", start, end);
 
 		//return the log lines candidates to be aggregated
-		final List<HttpAccessLogLine> logs = getLogCandidates(end);
+		final List<AccessLogLine> logs = getLogCandidates(end);
 
 		//aggregate all the log line candidates
-		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(logs);
+		final AccessLogStats accessLogStats = logs.isEmpty() ? AccessLogStats.empty(start, end) : httpAccessLogStatsComponent.aggregateLogs(logs);
 
-		LOG.info("Finished aggregation httpAccessLogStats={}.", httpAccessLogStats);
+		LOG.info("Finished aggregation httpAccessLogStats={}.", accessLogStats);
 
 		//always dispatch the stats.
-		internalDispatcher.dispatch(httpAccessLogStats);
+		internalDispatcher.dispatch(accessLogStats);
 	}
 
-	private List<HttpAccessLogLine> getLogCandidates(LocalDateTime end) {
-		final List<HttpAccessLogLine> logs = new ArrayList<>();
+	private List<AccessLogLine> getLogCandidates(LocalDateTime end) {
+		final List<AccessLogLine> logs = new ArrayList<>();
 
-		HttpAccessLogLine log = logLines.peek();
+		AccessLogLine log = logLines.peek();
 
 		while (log != null && log.getInsertTime().isBefore(end)) {
 			log = logLines.poll();

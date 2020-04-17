@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.adrian.rebollo.model.HttpAccessLogLine;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogLine;
+import com.adrian.rebollo.model.AccessLogStats;
 import com.adrian.rebollo.model.HttpMethod;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,7 +28,7 @@ public class LogStatsComponentTest {
 	@Test
 	public void testCompute() {
 
-		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+		final AccessLogLine logLine = AccessLogLine.builder()
 				.insertTime(LocalDateTime.now())
 				.host("127.0.0.1")
 				.identifier("user1")
@@ -39,9 +39,9 @@ public class LogStatsComponentTest {
 				.contentSize(12)
 				.build();
 
-		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine));
+		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine));
 
-		final HttpAccessLogStats expected = new HttpAccessLogStats()
+		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(1))
 				.setValidRequests(new AtomicLong(0))
 				.setInvalidRequests(new AtomicLong(1))
@@ -53,13 +53,13 @@ public class LogStatsComponentTest {
 		expected.getTopInvalidVisitedRequestsSections().put("/api", new AtomicLong(1L));
 		expected.getTopVisitsSection().put("/api", new AtomicLong(1L));
 
-		assertEquals(expected, httpAccessLogStats);
+		assertEquals(expected, accessLogStats);
 	}
 
 	@Test
 	public void testComputeSeveral() {
 
-		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+		final AccessLogLine logLine = AccessLogLine.builder()
 				.insertTime(LocalDateTime.now())
 				.host("127.0.0.1")
 				.identifier("user1")
@@ -70,7 +70,7 @@ public class LogStatsComponentTest {
 				.contentSize(10)
 				.build();
 
-		final HttpAccessLogLine secondLogLine = HttpAccessLogLine.builder()
+		final AccessLogLine secondLogLine = AccessLogLine.builder()
 				.insertTime(LocalDateTime.now())
 				.host("127.0.0.2")
 				.identifier("user1")
@@ -81,7 +81,7 @@ public class LogStatsComponentTest {
 				.contentSize(20)
 				.build();
 
-		final HttpAccessLogLine thirdLogLine = HttpAccessLogLine.builder()
+		final AccessLogLine thirdLogLine = AccessLogLine.builder()
 				.insertTime(LocalDateTime.now())
 				.host("127.0.0.3")
 				.identifier("user1")
@@ -92,9 +92,9 @@ public class LogStatsComponentTest {
 				.contentSize(30)
 				.build();
 
-		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
+		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
 
-		final HttpAccessLogStats expected = new HttpAccessLogStats()
+		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(3))
 				.setValidRequests(new AtomicLong(2))
 				.setInvalidRequests(new AtomicLong(1))
@@ -107,7 +107,7 @@ public class LogStatsComponentTest {
 		expected.getTopInvalidVisitedRequestsSections().putAll(Map.of("/endpoint", new AtomicLong(1L)));
 		expected.getTopVisitsSection().putAll(Map.of("/metrics", new AtomicLong(2L), "/endpoint", new AtomicLong(1L)));
 
-		assertEquals(expected, httpAccessLogStats);
+		assertEquals(expected, accessLogStats);
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public class LogStatsComponentTest {
 		LocalDateTime firstDate = LocalDateTime.now().minus(10, ChronoUnit.SECONDS);
 		LocalDateTime lastDate = LocalDateTime.now().plus(10, ChronoUnit.SECONDS);
 
-		final HttpAccessLogLine logLine = HttpAccessLogLine.builder()
+		final AccessLogLine logLine = AccessLogLine.builder()
 				.insertTime(firstDate)
 				.host("127.0.0.1")
 				.identifier("user1")
@@ -127,7 +127,7 @@ public class LogStatsComponentTest {
 				.contentSize(10)
 				.build();
 
-		final HttpAccessLogLine secondLogLine = HttpAccessLogLine.builder()
+		final AccessLogLine secondLogLine = AccessLogLine.builder()
 				.insertTime(LocalDateTime.now())
 				.host("127.0.0.2")
 				.identifier("user1")
@@ -138,7 +138,7 @@ public class LogStatsComponentTest {
 				.contentSize(20)
 				.build();
 
-		final HttpAccessLogLine thirdLogLine = HttpAccessLogLine.builder()
+		final AccessLogLine thirdLogLine = AccessLogLine.builder()
 				.insertTime(lastDate)
 				.host("127.0.0.3")
 				.identifier("user1")
@@ -149,10 +149,10 @@ public class LogStatsComponentTest {
 				.contentSize(30)
 				.build();
 
-		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
+		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(List.of(logLine, secondLogLine, thirdLogLine));
 
-		Assert.assertEquals(0, ChronoUnit.SECONDS.between(firstDate, httpAccessLogStats.getStart()));
-		Assert.assertEquals(0, ChronoUnit.SECONDS.between(lastDate, httpAccessLogStats.getEnd()));
+		Assert.assertEquals(0, ChronoUnit.SECONDS.between(firstDate, accessLogStats.getStart()));
+		Assert.assertEquals(0, ChronoUnit.SECONDS.between(lastDate, accessLogStats.getEnd()));
 	}
 
 	@Test
@@ -161,9 +161,9 @@ public class LogStatsComponentTest {
 
 		final Logs logs = new ObjectMapper().readValue(getClass().getResource("/logLines.json"), Logs.class);
 
-		final HttpAccessLogStats httpAccessLogStats = httpAccessLogStatsComponent.aggregateLogs(logs.logs);
+		final AccessLogStats accessLogStats = httpAccessLogStatsComponent.aggregateLogs(logs.logs);
 
-		final HttpAccessLogStats expected = new HttpAccessLogStats()
+		final AccessLogStats expected = new AccessLogStats()
 				.setRequests(new AtomicLong(20))
 				.setValidRequests(new AtomicLong(12))
 				.setInvalidRequests(new AtomicLong(8))
@@ -224,32 +224,37 @@ public class LogStatsComponentTest {
 				"/buys", new AtomicLong(2L)
 		));
 
-		assertEquals(expected, httpAccessLogStats);
+		assertEquals(expected, accessLogStats);
 	}
 
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
 	private static class Logs {
-		private List<HttpAccessLogLine> logs;
+		private List<AccessLogLine> logs;
 	}
 
-	private void assertEquals(HttpAccessLogStats expected, HttpAccessLogStats httpAccessLogStats) {
-		Assert.assertEquals(expected.getRequests().get(), httpAccessLogStats.getRequests().get());
-		Assert.assertEquals(expected.getValidRequests().get(), httpAccessLogStats.getValidRequests().get());
-		Assert.assertEquals(expected.getInvalidRequests().get(), httpAccessLogStats.getInvalidRequests().get());
-		Assert.assertEquals(expected.getTotalContent().get(), httpAccessLogStats.getTotalContent().get());
+	private void assertEquals(AccessLogStats expected, AccessLogStats accessLogStats) {
+		Assert.assertEquals(expected.getRequests().get(), accessLogStats.getRequests().get());
+		Assert.assertEquals(expected.getValidRequests().get(), accessLogStats.getValidRequests().get());
+		Assert.assertEquals(expected.getInvalidRequests().get(), accessLogStats.getInvalidRequests().get());
+		Assert.assertEquals(expected.getTotalContent().get(), accessLogStats.getTotalContent().get());
 		//keys
-		Assert.assertEquals(expected.getTopVisitsByHost().keySet(), httpAccessLogStats.getTopVisitsByHost().keySet());
-		Assert.assertEquals(expected.getTopVisitsByUser().keySet(), httpAccessLogStats.getTopVisitsByUser().keySet());
-		Assert.assertEquals(expected.getTopVisitsByMethod().keySet(), httpAccessLogStats.getTopVisitsByMethod().keySet());
-		Assert.assertEquals(expected.getTopInvalidVisitedRequestsSections().keySet(), httpAccessLogStats.getTopInvalidVisitedRequestsSections().keySet());
-		Assert.assertEquals(expected.getTopVisitsSection().keySet(), httpAccessLogStats.getTopVisitsSection().keySet());
+		Assert.assertEquals(expected.getTopVisitsByHost().keySet(), accessLogStats.getTopVisitsByHost().keySet());
+		Assert.assertEquals(expected.getTopVisitsByUser().keySet(), accessLogStats.getTopVisitsByUser().keySet());
+		Assert.assertEquals(expected.getTopVisitsByMethod().keySet(), accessLogStats.getTopVisitsByMethod().keySet());
+		Assert.assertEquals(expected.getTopInvalidVisitedRequestsSections().keySet(), accessLogStats.getTopInvalidVisitedRequestsSections().keySet());
+		Assert.assertEquals(expected.getTopVisitsSection().keySet(), accessLogStats.getTopVisitsSection().keySet());
 		//values
-		Assert.assertEquals(expected.getTopVisitsByHost().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), httpAccessLogStats.getTopVisitsByHost().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
-		Assert.assertEquals(expected.getTopVisitsByUser().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), httpAccessLogStats.getTopVisitsByUser().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
-		Assert.assertEquals(expected.getTopVisitsByMethod().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), httpAccessLogStats.getTopVisitsByMethod().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
-		Assert.assertEquals(expected.getTopInvalidVisitedRequestsSections().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), httpAccessLogStats.getTopInvalidVisitedRequestsSections().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
-		Assert.assertEquals(expected.getTopVisitsSection().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), httpAccessLogStats.getTopVisitsSection().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
+		Assert.assertEquals(expected.getTopVisitsByHost().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), accessLogStats
+				.getTopVisitsByHost().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
+		Assert.assertEquals(expected.getTopVisitsByUser().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), accessLogStats
+				.getTopVisitsByUser().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
+		Assert.assertEquals(expected.getTopVisitsByMethod().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), accessLogStats
+				.getTopVisitsByMethod().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
+		Assert.assertEquals(expected.getTopInvalidVisitedRequestsSections().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), accessLogStats
+				.getTopInvalidVisitedRequestsSections().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
+		Assert.assertEquals(expected.getTopVisitsSection().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()), accessLogStats
+				.getTopVisitsSection().values().stream().map(AtomicLong::get).sorted(Comparator.comparingLong(left -> left)).collect(Collectors.toList()));
 	}
 }

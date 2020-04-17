@@ -11,7 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.model.HttpAccessLogLine;
+import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.parser.HttpAccessLogLineParser;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,7 +34,7 @@ public class CustomTailerListenerTest {
 	@Test
 	public void testCalls() {
 		final String line = "whatever";
-		final HttpAccessLogLine parsed = HttpAccessLogLine.builder().build();
+		final AccessLogLine parsed = AccessLogLine.builder().build();
 
 		customTailerListener.handle(line);
 

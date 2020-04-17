@@ -20,11 +20,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.model.HttpAccessLogLine;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogLine;
+import com.adrian.rebollo.model.AccessLogStats;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HttpAccessLogStatsServiceImplTest {
+public class AccessLogStatsServiceImplTest {
 
 	@InjectMocks
 	private HttpAccessLogStatsServiceImpl httpAccessLogStatsService;
@@ -35,7 +35,7 @@ public class HttpAccessLogStatsServiceImplTest {
 	private HttpAccessLogStatsComponent httpAccessLogStatsComponent;
 
 	@Captor
-	private ArgumentCaptor<HttpAccessLogStats> statsCaptor;
+	private ArgumentCaptor<AccessLogStats> statsCaptor;
 
 	@Before
 	public void init() {
@@ -45,7 +45,7 @@ public class HttpAccessLogStatsServiceImplTest {
 	@Test
 	public void testEmptyResults() {
 
-		ReflectionTestUtils.invokeMethod(httpAccessLogStatsService, "aggregate");
+		httpAccessLogStatsService.aggregate();
 
 		verify(internalDispatcher).dispatch(statsCaptor.capture());
 	}
@@ -53,14 +53,14 @@ public class HttpAccessLogStatsServiceImplTest {
 	@Test
 	public void callsStatsComponent() {
 
-		final HttpAccessLogLine httpAccessLogLine = new HttpAccessLogLine().setInsertTime(LocalDateTime.now());
+		final AccessLogLine accessLogLine = new AccessLogLine().setInsertTime(LocalDateTime.now());
 
-		when(httpAccessLogStatsComponent.aggregateLogs(anyList())).thenReturn(new HttpAccessLogStats());
+		when(httpAccessLogStatsComponent.aggregateLogs(anyList())).thenReturn(new AccessLogStats());
 
-		httpAccessLogStatsService.handle(httpAccessLogLine);
-		ReflectionTestUtils.invokeMethod(httpAccessLogStatsService, "aggregate");
+		httpAccessLogStatsService.handle(accessLogLine);
+		httpAccessLogStatsService.aggregate();
 
-		verify(httpAccessLogStatsComponent).aggregateLogs(eq(List.of(httpAccessLogLine)));
-		verify(internalDispatcher).dispatch(any(HttpAccessLogStats.class));
+		verify(httpAccessLogStatsComponent).aggregateLogs(eq(List.of(accessLogLine)));
+		verify(internalDispatcher).dispatch(any(AccessLogStats.class));
 	}
 }

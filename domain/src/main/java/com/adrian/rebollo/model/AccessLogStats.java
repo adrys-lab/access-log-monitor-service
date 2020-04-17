@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class HttpAccessLogStats extends LogInfo {
+public class AccessLogStats extends LogInfo {
 
 	/**
 	 * start of the Stats range time.
@@ -82,12 +82,12 @@ public class HttpAccessLogStats extends LogInfo {
 	 */
 	private final Map<String, AtomicLong> topVisitsSection = new LinkedHashMap<>();
 
-	public HttpAccessLogStats(LocalDateTime start, LocalDateTime end) {
+	public AccessLogStats(LocalDateTime start, LocalDateTime end) {
 		this.start = start;
 		this.end = end;
 	}
 
-	public static HttpAccessLogStats empty() {
-		return new HttpAccessLogStats();
+	public static AccessLogStats empty(LocalDateTime start, LocalDateTime end) {
+		return new AccessLogStats().setStart(start).setEnd(end);
 	}
 }

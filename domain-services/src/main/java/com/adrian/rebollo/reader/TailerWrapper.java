@@ -1,8 +1,7 @@
 package com.adrian.rebollo.reader;
 
-import javax.annotation.PreDestroy;
-
 import org.apache.commons.io.input.Tailer;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class TailerWrapper {
+public class TailerWrapper implements DisposableBean {
 
 	private final Tailer tailer;
 
@@ -37,7 +36,7 @@ public class TailerWrapper {
 	/**
 	 * when destroying the bean close the Tailer.
 	 */
-	@PreDestroy
+	@Override
 	public void destroy() {
 		LOG.info("Destroying Bean TailerWrapper, proceed to stop TailerWrapper with delay={} for file{}", tailer.getDelay(), tailer.getFile().getAbsolutePath());
 		tailer.stop();

@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import com.adrian.rebollo.log.LogExternalDispatcherImpl;
 import com.adrian.rebollo.model.AlertType;
-import com.adrian.rebollo.model.HttpAccessLogAlert;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogAlert;
+import com.adrian.rebollo.model.AccessLogStats;
 
 public class LogExternalDispatcherImplTest {
 
@@ -16,7 +16,7 @@ public class LogExternalDispatcherImplTest {
 
 	@Test
 	public void handleStats() {
-		final HttpAccessLogStats stats = new HttpAccessLogStats()
+		final AccessLogStats stats = new AccessLogStats()
 				.setRequests(new AtomicLong(3L))
 				.setTotalContent(new AtomicLong(400))
 				.setValidRequests(new AtomicLong(2))
@@ -26,7 +26,7 @@ public class LogExternalDispatcherImplTest {
 
 	@Test
 	public void handleAlerts() {
-		final HttpAccessLogAlert alert = HttpAccessLogAlert.builder()
+		final AccessLogAlert alert = AccessLogAlert.builder()
 				.alertTime(LocalDateTime.now())
 				.start(LocalDateTime.now())
 				.end(LocalDateTime.now())

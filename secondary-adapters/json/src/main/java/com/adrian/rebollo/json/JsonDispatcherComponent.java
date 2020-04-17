@@ -45,8 +45,9 @@ public class JsonDispatcherComponent {
 
 	/**
 	 * writes a new objecct into the json file.
+	 * we need to synchronize this method as the outputstream and inputstream need to be free and closed before get it. --> file access needs to be one thread at time.
 	 */
-	void writeObjectToJson(LogInfo logInfo) {
+	synchronized void writeObjectToJson(LogInfo logInfo) {
 
 		final JsonInfo jsonInfo = readJsonInfo();
 

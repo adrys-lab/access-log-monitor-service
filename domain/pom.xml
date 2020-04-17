@@ -25,10 +25,10 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- Hibernate -->
+		<!-- json -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 		<!-- Testing -->
 		<dependency>

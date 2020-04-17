@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 import com.adrian.rebollo.api.HttpAccessLogAlertService;
 import com.adrian.rebollo.api.InternalDispatcher;
 import com.adrian.rebollo.model.AlertType;
-import com.adrian.rebollo.model.HttpAccessLogAlert;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogAlert;
+import com.adrian.rebollo.model.AccessLogStats;
 import com.google.common.collect.EvictingQueue;
 
 import lombok.RequiredArgsConstructor;
@@ -31,14 +31,14 @@ public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService 
 
 	private final InternalDispatcher internalDispatcher;
 
-	private Queue<HttpAccessLogStats> statsQueue;
+	private Queue<AccessLogStats> statsQueue;
 
-	@Value("${service.schedulers.alert.time-window}")
-	private final int alertTimeWindow;
+	@Value("${service.alert.time-window}")
+	private int alertTimeWindow;
 	@Value("${service.schedulers.stats.delay}")
-	private final int delayStats;
-	@Value("${service.schedulers.alert.threshold}")
-	private final int threshold;
+	private int delayStats;
+	@Value("${service.alert.threshold}")
+	private int threshold;
 
 	@Autowired
 	private final StateMachine<AlertType, AlertType> alertStateMachine;
@@ -50,8 +50,8 @@ public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService 
 		statsQueue = EvictingQueue.create(alertTimeWindow / (delayStats / 1000));
 	}
 
-	public void handle(HttpAccessLogStats httpAccessLogStats) {
-		statsQueue.offer(httpAccessLogStats);
+	public void handle(AccessLogStats accessLogStats) {
+		statsQueue.offer(accessLogStats);
 		compute();
 	}
 
@@ -63,12 +63,12 @@ public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService 
 
 		LOG.info("Triggered alert compute logs statistics for a timewindow={} SECONDS, from={}, to={}.", alertTimeWindow, start, end);
 
-		final List<HttpAccessLogStats> stats = new ArrayList<>(statsQueue);
+		final List<AccessLogStats> stats = new ArrayList<>(statsQueue);
 
 		LOG.info("Proceeding to check Alerts from {} stats data.", stats.size());
 
 		final long totalRequests = stats.stream()
-				.map(HttpAccessLogStats::getRequests)
+				.map(AccessLogStats::getRequests)
 				.map(AtomicLong::get)
 				.mapToLong(Long::longValue)
 				.sum();
@@ -89,7 +89,7 @@ public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService 
 
 	private void createAlert(long totalRequests, double requestsSecond, final AlertType alertType, final LocalDateTime start, final LocalDateTime end) {
 
-		final HttpAccessLogAlert httpAccessLogAlert = HttpAccessLogAlert.builder()
+		final AccessLogAlert accessLogAlert = AccessLogAlert.builder()
 				.alertTime(LocalDateTime.now())
 				.start(start)
 				.end(end)
@@ -98,12 +98,12 @@ public class HttpAccessLogAlertServiceImpl implements HttpAccessLogAlertService 
 				.type(alertType)
 				.build();
 
-		LOG.info("Proceeding to create alert={}.", httpAccessLogAlert);
+		LOG.info("Proceeding to create alert={}.", accessLogAlert);
 
 		//here we update the alert state machine with the given alert type.
-		alertStateMachine.sendEvent(httpAccessLogAlert.getType());
+		alertStateMachine.sendEvent(accessLogAlert.getType());
 
 		//alaways send the alert to be dispatched. it has to reach the LogService anyways.
-		internalDispatcher.dispatch(httpAccessLogAlert);
+		internalDispatcher.dispatch(accessLogAlert);
 	}
 }

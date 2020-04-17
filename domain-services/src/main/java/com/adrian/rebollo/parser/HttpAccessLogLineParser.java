@@ -1,5 +1,6 @@
 package com.adrian.rebollo.parser;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
@@ -10,14 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.adrian.rebollo.exception.HttpLogLineParsingException;
-import com.adrian.rebollo.model.HttpAccessLogLine;
+import com.adrian.rebollo.model.AccessLogLine;
 import com.adrian.rebollo.model.HttpMethod;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class HttpAccessLogLineParser implements Function<String, HttpAccessLogLine> {
+public class HttpAccessLogLineParser implements Function<String, AccessLogLine> {
 
 	//This REGEX expression matches with the Apache Common Access Log pattern, used -> https://www.regexpal.com/
 	private static final String HTTP_LOG_LINE_REGEX = "^(\\S+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})] \"(\\S+) (\\S+) (\\S+)\" (\\d{3}) (\\d+)";
@@ -27,18 +28,18 @@ public class HttpAccessLogLineParser implements Function<String, HttpAccessLogLi
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MMM/yyyy:HH:mm:ss Z");
 
 	@Override
-	public HttpAccessLogLine apply(String line) {
+	public AccessLogLine apply(String line) {
 
 		final Matcher lineMatcher = HTTP_LOG_LINE_PATTERN.matcher(line);
 
 		try {
 			if(lineMatcher.find()) {
 				LOG.debug("Proceeding to parse line={}", line);
-				return HttpAccessLogLine.builder()
-						.line(safeParseString(lineMatcher.group(0)))
+				return AccessLogLine.builder()
 						.host(safeParseString(lineMatcher.group(1)))
 						.identifier(StringUtils.defaultIfBlank(safeParseString(lineMatcher.group(2)), "NO_IDENTIFIER"))
 						.user(StringUtils.defaultIfBlank(safeParseString(lineMatcher.group(3)), "NO_USER"))
+						.insertTime(LocalDateTime.now())
 						.dateTime(ZonedDateTime.parse(lineMatcher.group(4), DATE_TIME_FORMATTER).toLocalDateTime())
 						.httpMethod(HttpMethod.valueOf(lineMatcher.group(5)))
 						.resource(safeParseString(lineMatcher.group(6)))

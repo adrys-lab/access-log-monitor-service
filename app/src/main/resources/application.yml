@@ -1,15 +1,13 @@
 logging:
   level:
     com.adrian: INFO
-    org.hibernate.engine.jdbc.spi: OFF
-    org.hibernate.internal: OFF
 
 spring:
   jpa:
     hibernate:
       use-new-id-generator-mappings: false
   application:
-    name: Http Log Monitor
+    name: Access Log Monitor
   main:
     web-environment: false
     web-application-type: NONE
@@ -29,18 +27,13 @@ service:
   reader:
     file-name: /tmp/access.log
     delay: 1
+  alert:
+    time-window: 120
+    threshold: 10
   schedulers:
-    alert:
-      enabled: true
-      initial-delay: 12000
-      delay: 10000
-      time-window: 120
-      threshold: 10
-      chunk: 10000
     stats:
       enabled: true
       delay: 10000
-      chunk: 10000
 adapters:
   camel:
     shutdown-timeout: 5s

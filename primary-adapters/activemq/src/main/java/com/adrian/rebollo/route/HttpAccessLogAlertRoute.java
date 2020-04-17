@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.adrian.rebollo.PrimaryEndpoint;
 import com.adrian.rebollo.api.ExternalDispatcherObserver;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
-import com.adrian.rebollo.model.HttpAccessLogAlert;
+import com.adrian.rebollo.model.AccessLogAlert;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class HttpAccessLogAlertRoute extends EnhancedRouteBuilder {
 
 		from(queue(endpoint.getInternalLogAlertQueue()).setConcurrentConsumers(1).setTransacted(true).build())
 				.process((exchange) -> {
-					HttpAccessLogAlert payload = objectMapper.readValue(exchange.getIn().getBody(String.class), HttpAccessLogAlert.class);
+					AccessLogAlert payload = objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogAlert.class);
 					externalDispatcherObserver.notify(payload);
 				});
 	}

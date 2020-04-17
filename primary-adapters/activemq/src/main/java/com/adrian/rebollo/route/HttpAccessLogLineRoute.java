@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.adrian.rebollo.PrimaryEndpoint;
 import com.adrian.rebollo.api.HttpAccessLogStatsService;
 import com.adrian.rebollo.helper.EnhancedRouteBuilder;
-import com.adrian.rebollo.model.HttpAccessLogLine;
+import com.adrian.rebollo.model.AccessLogLine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,7 +48,7 @@ public class HttpAccessLogLineRoute extends EnhancedRouteBuilder {
 						 */
 						logConsumerThreadPool.execute(() -> {
 							try {
-								httpAccessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), HttpAccessLogLine.class));
+								httpAccessLogStatsService.handle(objectMapper.readValue(exchange.getIn().getBody(String.class), AccessLogLine.class));
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
 							}

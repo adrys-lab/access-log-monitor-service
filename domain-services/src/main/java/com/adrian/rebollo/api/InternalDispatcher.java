@@ -1,8 +1,8 @@
 package com.adrian.rebollo.api;
 
-import com.adrian.rebollo.model.HttpAccessLogAlert;
-import com.adrian.rebollo.model.HttpAccessLogLine;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogAlert;
+import com.adrian.rebollo.model.AccessLogLine;
+import com.adrian.rebollo.model.AccessLogStats;
 
 /**
  * Main abstraction for dispatch entities internally across the service.
@@ -12,21 +12,21 @@ public interface InternalDispatcher {
 	/**
 	 * dispatch the given httpAccessLogLine to be processed by its subscribers.
 	 *
-	 * @param httpAccessLogLine to dispatch internally
+	 * @param accessLogLine to dispatch internally
 	 */
-	void dispatch(HttpAccessLogLine httpAccessLogLine);
+	void dispatch(AccessLogLine accessLogLine);
 
 	/**
 	 * dispatch the given httpAccessLogStats to be processed by its subscribers.
 	 *
-	 * @param httpAccessLogStats to dispatch internally
+	 * @param accessLogStats to dispatch internally
 	 */
-	void dispatch(HttpAccessLogStats httpAccessLogStats);
+	void dispatch(AccessLogStats accessLogStats);
 
 	/**
 	 * dispatch the given httpAccessAlert to be processed by its subscribers.
 	 *
-	 * @param httpAccessLogAlert to dispatch internally
+	 * @param accessLogAlert to dispatch internally
 	 */
-	void dispatch(HttpAccessLogAlert httpAccessLogAlert);
+	void dispatch(AccessLogAlert accessLogAlert);
 }

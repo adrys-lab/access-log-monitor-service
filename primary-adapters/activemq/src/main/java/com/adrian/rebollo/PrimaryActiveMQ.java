@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import com.adrian.rebollo.api.InternalDispatcher;
-import com.adrian.rebollo.model.HttpAccessLogAlert;
-import com.adrian.rebollo.model.HttpAccessLogLine;
-import com.adrian.rebollo.model.HttpAccessLogStats;
+import com.adrian.rebollo.model.AccessLogAlert;
+import com.adrian.rebollo.model.AccessLogLine;
+import com.adrian.rebollo.model.AccessLogStats;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -27,18 +27,18 @@ public class PrimaryActiveMQ implements InternalDispatcher {
 	private final PrimaryEndpoint endpoint;
 
 	@Override
-	public void dispatch(HttpAccessLogLine httpAccessLogLine) {
-		send(endpoint.getInternalLogLineQueue(), httpAccessLogLine);
+	public void dispatch(AccessLogLine accessLogLine) {
+		send(endpoint.getInternalLogLineQueue(), accessLogLine);
 	}
 
 	@Override
-	public void dispatch(HttpAccessLogStats httpAccessLogStats) {
-		send(endpoint.getInternalLogStatsQueue(), httpAccessLogStats);
+	public void dispatch(AccessLogStats accessLogStats) {
+		send(endpoint.getInternalLogStatsQueue(), accessLogStats);
 	}
 
 	@Override
-	public void dispatch(HttpAccessLogAlert httpAccessLogAlert) {
-		send(endpoint.getInternalLogAlertQueue(), httpAccessLogAlert);
+	public void dispatch(AccessLogAlert accessLogAlert) {
+		send(endpoint.getInternalLogAlertQueue(), accessLogAlert);
 	}
 
 	@SneakyThrows

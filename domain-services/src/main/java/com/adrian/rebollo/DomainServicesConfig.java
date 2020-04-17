@@ -7,6 +7,7 @@ import org.apache.commons.io.input.Tailer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -26,6 +27,7 @@ public class DomainServicesConfig {
 	/**
 	 * Configure a ThreadPoolTaskExecutor to consume the input access.log file, process the line and dispatch it.
 	 */
+	@Primary
 	@Bean(name = "httpLogReaderThreadPool")
 	public Executor httpLogMonitorThreadPool() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
